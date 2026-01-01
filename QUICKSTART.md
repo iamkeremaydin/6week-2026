@@ -1,0 +1,166 @@
+# Quick Start Guide
+
+Get up and running with the 6+1 Week Cycle Calendar in under 5 minutes.
+
+## Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000)
+
+## Basic Usage
+
+### 1. Import and Use
+
+```tsx
+import { CalendarView } from "@/components/calendar/CalendarView";
+
+export default function Page() {
+  return <CalendarView year={2026} />;
+}
+```
+
+That's it! You now have a fully functional calendar.
+
+### 2. Customize Configuration
+
+```tsx
+<CalendarView
+  year={2026}
+  cycleStartDate={new Date(2026, 2, 15)}  // Start mid-March
+  workWeeks={4}                            // 4 work weeks
+  restWeeks={2}                            // 2 rest weeks
+  weekStartsOn={0}                         // Sunday
+/>
+```
+
+### 3. Build Your Own UI
+
+```tsx
+import { useCycleLogic } from "@/hooks/useCycleLogic";
+
+function MyCalendar() {
+  const { blocks, currentBlock, totalCycles } = useCycleLogic({
+    year: 2026,
+    cycleStartDate: new Date(2026, 0, 1),
+  });
+
+  return (
+    <div>
+      <h1>Total Cycles: {totalCycles}</h1>
+      <p>Current: Cycle {currentBlock?.cycleNumber}</p>
+      {/* Your custom UI */}
+    </div>
+  );
+}
+```
+
+## Key Features
+
+- 📅 **Three Views**: Timeline, Month Grid, Agenda
+- 🎨 **Animated**: Smooth, premium animations
+- 🌓 **Dark Mode**: Toggle in top-right corner
+- 🔍 **Filterable**: By type (work/rest) or cycle number
+- 📱 **Responsive**: Works on all devices
+
+## Testing
+
+```bash
+npm test              # Run tests
+npm run test:ui       # Open test UI
+```
+
+## Common Patterns
+
+### Pattern 1: Show Only Rest Weeks
+
+```tsx
+const { setFilterOptions } = useCycleLogic({ year: 2026 });
+setFilterOptions({ blockType: "rest" });
+```
+
+### Pattern 2: Check if Today is a Work Week
+
+```tsx
+const { isWorkWeek } = useCycleLogic({ year: 2026 });
+const today = new Date();
+if (isWorkWeek(today)) {
+  console.log("Time to work!");
+}
+```
+
+### Pattern 3: Generate ICS Export
+
+```tsx
+import { buildSixPlusOneBlocks } from "@/lib/calendar/cycle-logic";
+
+const blocks = buildSixPlusOneBlocks(
+  { cycleStartDate: new Date(2026, 0, 1), workWeeks: 6, restWeeks: 1, weekStartsOn: 1 },
+  2026
+);
+// Process blocks for export
+```
+
+## Customization
+
+### Change Colors
+
+Edit `tailwind.config.ts`:
+
+```typescript
+colors: {
+  work: { /* your colors */ },
+  rest: { /* your colors */ },
+}
+```
+
+### Adjust Animations
+
+In component files, modify:
+
+```tsx
+transition={{ duration: 0.5, delay: 0.1 }}
+```
+
+## Project Structure
+
+```
+6week/
+├── app/                    # Next.js pages
+│   ├── page.tsx           # Demo page
+│   └── layout.tsx         # Root layout
+├── components/calendar/    # UI components
+│   ├── CalendarView.tsx   # Main container
+│   ├── YearTimeline.tsx   # Timeline view
+│   ├── MonthGrid.tsx      # Month view
+│   ├── AgendaList.tsx     # Agenda view
+│   └── Legend.tsx         # Controls
+├── hooks/
+│   └── useCycleLogic.ts   # State management
+└── lib/calendar/
+    ├── cycle-logic.ts     # Core functions
+    └── types.ts           # TypeScript types
+```
+
+## Next Steps
+
+- 📖 Read [USAGE.md](./USAGE.md) for detailed examples
+- 🛠️ See [CONTRIBUTING.md](./CONTRIBUTING.md) to contribute
+- 📋 Check [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) for architecture
+
+## Need Help?
+
+- Check the demo at `app/page.tsx`
+- Review tests in `lib/calendar/cycle-logic.test.ts`
+- Open an issue on GitHub
+
+---
+
+**You're ready to go!** 🚀
+
