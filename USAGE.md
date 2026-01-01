@@ -414,10 +414,22 @@ document.documentElement.classList.toggle("dark");
 
 ### Animations
 
-Adjust animation settings in component files:
+Use constants from `lib/calendar/constants.ts` for consistent animations:
 
 ```tsx
+import { ANIMATION_CONFIG } from "@/lib/calendar/constants";
+
 // In YearTimeline.tsx, MonthGrid.tsx, etc.
+transition={{
+  duration: ANIMATION_CONFIG.DURATION_NORMAL,
+  delay: index * ANIMATION_CONFIG.DELAY_STAGGER,
+  ease: ANIMATION_CONFIG.EASING_EXPO,
+}}
+```
+
+For advanced customization, you can still use inline values:
+
+```tsx
 transition={{
   duration: 0.5,        // Adjust timing
   delay: index * 0.02,  // Adjust stagger
@@ -434,6 +446,121 @@ Update fonts in `app/layout.tsx` or `globals.css`:
 
 body {
   font-family: 'Your Font', sans-serif;
+}
+```
+
+## Timeline View Features
+
+The YearTimeline component includes several interactive features:
+
+### Month Indicators
+
+Month labels are displayed at the top of the timeline, dynamically sized to show which months each cycle spans. This helps you quickly identify the time period for each work/rest cycle.
+
+### Cycle Markers
+
+At the end of each 6+1 cycle, a vertical marker with a dot indicates the cycle boundary. These markers help visualize the rhythm of your cycles throughout the year.
+
+### Editable Cycle Labels
+
+Click on any cycle marker to add custom text labels:
+
+```tsx
+// Feature is built into YearTimeline component
+<YearTimeline blocks={blocks} currentBlock={currentBlock} />
+```
+
+**How to use:**
+1. Click on the circle at the top of any cycle marker
+2. Enter your label text (e.g., "Q1 Goals", "Sprint Review", "Project Milestone")
+3. Click the ✓ button to save or ✕ to cancel
+4. Labels are stored in component state and persist during your session
+
+**Example use cases:**
+- "Q1 Planning" - Mark quarterly milestones
+- "Sprint 5" - Track agile sprint numbers
+- "Vacation Block" - Note planned time off
+- "Product Launch" - Highlight major events
+
+## Configuration Constants
+
+The project includes a centralized constants file for maintainability and consistency.
+
+### Available Constants
+
+Import from `lib/calendar/constants.ts`:
+
+```typescript
+import { 
+  DIMENSIONS,      // UI element sizes
+  ANIMATION_CONFIG,// Animation timings and easing
+  CYCLE_CONFIG,    // Default cycle settings
+  UI_CONFIG,       // Z-indexes, breakpoints, opacity
+  DATE_FORMATS,    // date-fns format strings
+  TEXT             // UI text constants
+} from "@/lib/calendar/constants";
+```
+
+### DIMENSIONS
+
+```typescript
+DIMENSIONS.WEEK_BLOCK_WIDTH      // 64px
+DIMENSIONS.WEEK_BLOCK_HEIGHT     // 128px
+DIMENSIONS.CYCLE_MARKER_HEIGHT   // 160px
+DIMENSIONS.LABEL_WIDTH           // 96px
+```
+
+### ANIMATION_CONFIG
+
+```typescript
+ANIMATION_CONFIG.DURATION_FAST      // 0.2s
+ANIMATION_CONFIG.DURATION_NORMAL    // 0.3s
+ANIMATION_CONFIG.DURATION_SLOW      // 0.5s
+ANIMATION_CONFIG.DELAY_STAGGER      // 0.01s
+ANIMATION_CONFIG.EASING_EXPO        // [0.19, 1, 0.22, 1]
+ANIMATION_CONFIG.SCALE_HOVER        // 1.05
+```
+
+### CYCLE_CONFIG
+
+```typescript
+CYCLE_CONFIG.DEFAULT_WORK_WEEKS     // 6
+CYCLE_CONFIG.DEFAULT_REST_WEEKS     // 1
+CYCLE_CONFIG.TOTAL_WEEKS_IN_CYCLE   // 7
+CYCLE_CONFIG.DEFAULT_WEEK_STARTS_ON // 1 (Monday)
+```
+
+### UI_CONFIG
+
+```typescript
+UI_CONFIG.Z_INDEX.TOOLTIP           // 10
+UI_CONFIG.Z_INDEX.DARK_MODE_TOGGLE  // 50
+UI_CONFIG.OPACITY.DISABLED          // 0.5
+UI_CONFIG.BORDER_RADIUS.MD          // 'rounded-lg'
+```
+
+### DATE_FORMATS
+
+```typescript
+DATE_FORMATS.MONTH_SHORT    // "MMM d"
+DATE_FORMATS.MONTH_LONG     // "MMMM d, yyyy"
+DATE_FORMATS.FULL_DATE      // "EEEE, MMMM d, yyyy"
+```
+
+### Usage Example
+
+```tsx
+import { ANIMATION_CONFIG, DIMENSIONS } from "@/lib/calendar/constants";
+
+function CustomComponent() {
+  return (
+    <motion.div
+      style={{ width: DIMENSIONS.WEEK_BLOCK_WIDTH }}
+      transition={{ duration: ANIMATION_CONFIG.DURATION_NORMAL }}
+    >
+      {/* content */}
+    </motion.div>
+  );
 }
 ```
 

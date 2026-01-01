@@ -122,11 +122,38 @@ colors: {
 
 ### Adjust Animations
 
-In component files, modify:
+Use constants from `lib/calendar/constants.ts`:
+
+```tsx
+import { ANIMATION_CONFIG } from "@/lib/calendar/constants";
+
+// In your component
+transition={{ 
+  duration: ANIMATION_CONFIG.DURATION_NORMAL, 
+  delay: ANIMATION_CONFIG.DELAY_STAGGER 
+}}
+```
+
+Or customize inline for specific cases:
 
 ```tsx
 transition={{ duration: 0.5, delay: 0.1 }}
 ```
+
+## Timeline Features
+
+### Month Indicators
+
+The Timeline view displays month names at the top, showing which months each cycle spans.
+
+### Editable Cycle Labels
+
+Click on the cycle markers to add custom labels:
+
+- Click the marker at the end of each 6+1 cycle
+- Type your label (e.g., "Q1 Review", "Sprint 3")
+- Click ✓ to save or ✕ to cancel
+- Labels persist throughout your session
 
 ## Project Structure
 
@@ -135,17 +162,23 @@ transition={{ duration: 0.5, delay: 0.1 }}
 ├── app/                    # Next.js pages
 │   ├── page.tsx           # Demo page
 │   └── layout.tsx         # Root layout
-├── components/calendar/    # UI components
-│   ├── CalendarView.tsx   # Main container
-│   ├── YearTimeline.tsx   # Timeline view
-│   ├── MonthGrid.tsx      # Month view
-│   ├── AgendaList.tsx     # Agenda view
-│   └── Legend.tsx         # Controls
+├── components/
+│   ├── calendar/          # Calendar components
+│   │   ├── CalendarView.tsx   # Main container
+│   │   ├── YearTimeline.tsx   # Timeline view
+│   │   ├── MonthGrid.tsx      # Month view
+│   │   ├── AgendaList.tsx     # Agenda view
+│   │   └── Legend.tsx         # Controls
+│   └── icons/             # Reusable icons
+│       ├── SunIcon.tsx    # Sun icon
+│       ├── MoonIcon.tsx   # Moon icon
+│       └── index.ts       # Icon exports
 ├── hooks/
 │   └── useCycleLogic.ts   # State management
 └── lib/calendar/
     ├── cycle-logic.ts     # Core functions
-    └── types.ts           # TypeScript types
+    ├── types.ts           # TypeScript types
+    └── constants.ts       # Configuration constants
 ```
 
 ## Next Steps

@@ -66,11 +66,24 @@ We follow conventional commits:
 │   ├── layout.tsx     # Root layout
 │   ├── page.tsx       # Demo page
 │   └── globals.css    # Global styles
-├── components/        # React components
-│   └── calendar/      # Calendar-specific components
+├── components/
+│   ├── calendar/      # Calendar-specific components
+│   │   ├── CalendarView.tsx
+│   │   ├── YearTimeline.tsx
+│   │   ├── MonthGrid.tsx
+│   │   ├── AgendaList.tsx
+│   │   └── Legend.tsx
+│   └── icons/         # Reusable icon components
+│       ├── SunIcon.tsx
+│       ├── MoonIcon.tsx
+│       └── index.ts
 ├── hooks/             # Custom React hooks
+│   └── useCycleLogic.ts
 ├── lib/               # Core logic and utilities
 │   └── calendar/      # Calendar calculation functions
+│       ├── cycle-logic.ts
+│       ├── types.ts
+│       └── constants.ts  # Configuration constants
 └── ...
 ```
 
@@ -92,6 +105,72 @@ interface Props {
 
 // Avoid
 const props: any = { ... };
+```
+
+### JSDoc Documentation
+
+- Add JSDoc comments to all exported functions
+- Include parameter descriptions and return types
+- Add example usage where helpful
+- See `lib/calendar/cycle-logic.ts` for reference
+
+```typescript
+// Good
+/**
+ * Builds an array of work/rest blocks for a given year.
+ * 
+ * @param config - Configuration object containing cycle parameters
+ * @param year - The calendar year to generate blocks for
+ * @returns Array of Block objects covering the specified year
+ * @example
+ * ```ts
+ * const blocks = buildSixPlusOneBlocks({
+ *   cycleStartDate: new Date(2026, 0, 1),
+ *   workWeeks: 6,
+ *   restWeeks: 1
+ * }, 2026);
+ * ```
+ */
+export function buildSixPlusOneBlocks(config: CycleConfig, year: number): Block[] {
+  // implementation
+}
+
+// Avoid - no documentation
+export function buildSixPlusOneBlocks(config: CycleConfig, year: number): Block[] {
+  // implementation
+}
+```
+
+### Constants Usage
+
+- Use constants from `lib/calendar/constants.ts` instead of magic numbers
+- Import only what you need for better tree-shaking
+- Add new constants to the file rather than hardcoding values
+
+```typescript
+// Good
+import { ANIMATION_CONFIG, DIMENSIONS } from "@/lib/calendar/constants";
+
+transition={{ 
+  duration: ANIMATION_CONFIG.DURATION_NORMAL,
+  delay: ANIMATION_CONFIG.DELAY_STAGGER 
+}}
+
+// Avoid - magic numbers
+transition={{ 
+  duration: 0.3,
+  delay: 0.01 
+}}
+```
+
+```typescript
+// Good
+import { CYCLE_CONFIG } from "@/lib/calendar/constants";
+
+const totalWeeks = CYCLE_CONFIG.TOTAL_WEEKS_IN_CYCLE;
+
+// Avoid - hardcoded values
+const totalWeeks = 7;
 ```
 
 ### React Components

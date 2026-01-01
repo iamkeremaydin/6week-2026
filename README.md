@@ -2,19 +2,11 @@
 
 Calendar component for 6-week work + 1-week rest cycles.
 
-## Install
+## Getting Started
 
 ```bash
 npm install
 npm run dev
-```
-
-## Usage
-
-```tsx
-import { CalendarView } from "@/components/calendar/CalendarView";
-
-<CalendarView year={2026} cycleStartDate={new Date(2026, 0, 1)} />
 ```
 
 ## Features
@@ -26,13 +18,9 @@ import { CalendarView } from "@/components/calendar/CalendarView";
 
 ## Documentation
 
-- [Quick Start](./QUICKSTART.md)
-- [Usage Guide](./USAGE.md)
-- [Contributing](./CONTRIBUTING.md)
-
-## Stack
-
-Next.js • React 19 • TypeScript • Tailwind CSS • Motion
+- [Quick Start](./QUICKSTART.md) - Installation and basic setup
+- [Usage Guide](./USAGE.md) - API reference and examples
+- [Contributing](./CONTRIBUTING.md) - How to contribute
 
 ## License
 
