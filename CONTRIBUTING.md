@@ -11,8 +11,8 @@ Be respectful, inclusive, and constructive in all interactions.
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/yourusername/6week-calendar.git
-   cd 6week-calendar
+   git clone https://github.com/iamkeremaydin/6week-2026.git
+   cd 6week-2026
    ```
 3. **Install dependencies**:
    ```bash
@@ -304,7 +304,7 @@ Add screenshots for UI changes
 
 ### Bug Fixes
 
-Check the [Issues](https://github.com/yourusername/6week-calendar/issues) page for reported bugs.
+Check the [Issues](https://github.com/iamkeremaydin/6week-2026/issues) page for reported bugs.
 
 ## Questions?
 
