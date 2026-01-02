@@ -33,12 +33,30 @@ export function MonthGrid({ blocks, year, getBlockForDate }: MonthGridProps) {
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+  // Check if we're at the boundaries of the year
+  const isFirstMonth = currentMonth.getMonth() === 0 && currentMonth.getFullYear() === year;
+  const isLastMonth = currentMonth.getMonth() === 11 && currentMonth.getFullYear() === year;
+
   const handlePrevMonth = () => {
-    setCurrentMonth((prev) => subMonths(prev, 1));
+    setCurrentMonth((prev) => {
+      const newMonth = subMonths(prev, 1);
+      // Don't allow going before January of the target year
+      if (newMonth.getFullYear() < year || (newMonth.getFullYear() === year && newMonth.getMonth() < 0)) {
+        return prev;
+      }
+      return newMonth;
+    });
   };
 
   const handleNextMonth = () => {
-    setCurrentMonth((prev) => addMonths(prev, 1));
+    setCurrentMonth((prev) => {
+      const newMonth = addMonths(prev, 1);
+      // Don't allow going after December of the target year
+      if (newMonth.getFullYear() > year || (newMonth.getFullYear() === year && newMonth.getMonth() > 11)) {
+        return prev;
+      }
+      return newMonth;
+    });
   };
 
   return (
@@ -47,9 +65,15 @@ export function MonthGrid({ blocks, year, getBlockForDate }: MonthGridProps) {
       <div className="flex items-center justify-between mb-6">
         <motion.button
           onClick={handlePrevMonth}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          disabled={isFirstMonth}
+          className={`
+            p-2 rounded-lg transition-colors
+            ${isFirstMonth 
+              ? "opacity-30 cursor-not-allowed" 
+              : "hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"}
+          `}
+          whileHover={isFirstMonth ? {} : { scale: 1.05 }}
+          whileTap={isFirstMonth ? {} : { scale: 0.95 }}
         >
           <svg
             className="w-6 h-6"
@@ -78,9 +102,15 @@ export function MonthGrid({ blocks, year, getBlockForDate }: MonthGridProps) {
 
         <motion.button
           onClick={handleNextMonth}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          disabled={isLastMonth}
+          className={`
+            p-2 rounded-lg transition-colors
+            ${isLastMonth 
+              ? "opacity-30 cursor-not-allowed" 
+              : "hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"}
+          `}
+          whileHover={isLastMonth ? {} : { scale: 1.05 }}
+          whileTap={isLastMonth ? {} : { scale: 0.95 }}
         >
           <svg
             className="w-6 h-6"
