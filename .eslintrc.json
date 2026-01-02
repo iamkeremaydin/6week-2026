@@ -1,8 +1,10 @@
 {
   "extends": ["next/core-web-vitals", "next/typescript"],
+  "plugins": ["react-compiler"],
   "rules": {
     "@typescript-eslint/no-unused-vars": "warn",
-    "@typescript-eslint/no-explicit-any": "warn"
+    "@typescript-eslint/no-explicit-any": "warn",
+    "react-compiler/react-compiler": "error"
   }
 }
 

@@ -1,10 +1,9 @@
 "use client";
 
-import { motion } from "motion/react";
-import { format, isSameWeek, getDayOfYear, startOfYear } from "date-fns";
+import { m } from "motion/react";
+import { format, isSameWeek, getDayOfYear } from "date-fns";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import type { Block, CycleLabels } from "@/lib/calendar/types";
-import { ANIMATION_CONFIG } from "@/lib/calendar/constants";
 
 interface YearTimelineProps {
   blocks: Block[];
@@ -73,7 +72,6 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
       const lastWeek = weeks[weeks.length - 1];
       const restWeek = weeks.find(w => w.type === "rest");
 
-      const yearStart = startOfYear(firstWeek.start);
       const totalDays = 365;
 
       const startDay = getDayOfYear(firstWeek.start);
@@ -114,7 +112,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
         <div className="flex-shrink-0 w-24 md:w-32">
           <div className="sticky top-0 space-y-1">
             {MONTHS.map((month, index) => (
-              <motion.div
+              <m.div
                 key={month.name}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -130,7 +128,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                     2026
                   </span>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>
@@ -149,7 +147,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
               const restWeek = cycle.weeks.find(w => w.type === "rest");
 
               return (
-                <motion.div
+                <m.div
                   key={cycle.cycleNumber}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -157,17 +155,17 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                   className="relative flex gap-3"
                 >
                   {/* Start marker */}
-                  <motion.div
+                  <m.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: cycleIndex * 0.1 + 0.2, type: "spring" }}
                     className="absolute -left-[34px] top-0"
                   >
                     <div className="w-3 h-3 rounded-full bg-work-500 dark:bg-work-400 border-4 border-white dark:border-gray-900 shadow-lg" />
-                  </motion.div>
+                  </m.div>
 
                   {/* Compact Cycle Card */}
-                  <motion.div
+                  <m.div
                     initial={{ scaleY: 0 }}
                     animate={{ scaleY: 1 }}
                     transition={{ delay: cycleIndex * 0.1 + 0.1, duration: 0.5 }}
@@ -234,7 +232,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
 
                     {/* Rest Week Badge */}
                     {restWeek && (
-                      <motion.div
+                      <m.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: cycleIndex * 0.1 + 0.4 }}
@@ -249,9 +247,9 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                             {format(restWeek.start, "MMM d")} - {format(new Date(restWeek.start.getTime() + 6 * 24 * 60 * 60 * 1000), "MMM d")}
                           </div>
                         </div>
-                      </motion.div>
+                      </m.div>
                     )}
-                  </motion.div>
+                  </m.div>
 
                   {/* Editable label */}
                   <div className="flex items-center">
@@ -266,17 +264,17 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                         className="w-32 px-2 py-1 text-xs bg-white dark:bg-gray-800 border-2 border-work-500 dark:border-work-400 rounded-md focus:outline-none focus:ring-2 focus:ring-work-500 dark:focus:ring-work-400 text-gray-900 dark:text-white shadow-lg"
                       />
                     ) : (
-                      <motion.button
+                      <m.button
                         onClick={() => handleLabelClick(cycle.cycleNumber)}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="w-32 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors cursor-pointer text-gray-700 dark:text-gray-300 font-medium border border-gray-300 dark:border-gray-600 shadow-md truncate"
                       >
                         {cycleLabels[cycle.cycleNumber] || "Add label"}
-                      </motion.button>
+                      </m.button>
                     )}
                   </div>
-                </motion.div>
+                </m.div>
               );
             })}
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import type { FilterOptions, BlockType } from "@/lib/calendar/types";
 
 interface LegendProps {
@@ -23,7 +23,7 @@ export function Legend({
   ];
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-800"
@@ -79,7 +79,7 @@ export function Legend({
           </label>
           <div className="flex gap-2">
             {blockTypes.map((type) => (
-              <motion.button
+              <m.button
                 key={type.value}
                 onClick={() =>
                   onFilterChange({ ...filterOptions, blockType: type.value })
@@ -97,7 +97,7 @@ export function Legend({
                 whileTap={{ scale: 0.98 }}
               >
                 {type.label}
-              </motion.button>
+              </m.button>
             ))}
           </div>
         </div>
@@ -108,7 +108,7 @@ export function Legend({
             Filter by Cycle
           </label>
           <div className="flex gap-2">
-            <motion.button
+            <m.button
               onClick={() =>
                 onFilterChange({ ...filterOptions, cycleNumber: undefined })
               }
@@ -125,7 +125,7 @@ export function Legend({
               whileTap={{ scale: 0.98 }}
             >
               All
-            </motion.button>
+            </m.button>
             <select
               value={filterOptions.cycleNumber || ""}
               onChange={(e) =>
@@ -150,7 +150,7 @@ export function Legend({
 
         {/* Reset filters */}
         {(filterOptions.blockType !== "all" || filterOptions.cycleNumber) && (
-          <motion.button
+          <m.button
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             onClick={() =>
@@ -161,10 +161,10 @@ export function Legend({
             whileTap={{ scale: 0.98 }}
           >
             Reset Filters
-          </motion.button>
+          </m.button>
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 

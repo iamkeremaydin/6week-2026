@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import {
   format,
   startOfMonth,
@@ -22,7 +22,7 @@ interface MonthGridProps {
   getBlockForDate: (date: Date) => Block | undefined;
 }
 
-export function MonthGrid({ blocks, year, getBlockForDate }: MonthGridProps) {
+export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date(year, 0, 1));
 
   const monthStart = startOfMonth(currentMonth);
@@ -63,7 +63,7 @@ export function MonthGrid({ blocks, year, getBlockForDate }: MonthGridProps) {
     <div className="w-full max-w-4xl mx-auto">
       {/* Month navigation */}
       <div className="flex items-center justify-between mb-6">
-        <motion.button
+        <m.button
           onClick={handlePrevMonth}
           disabled={isFirstMonth}
           className={`
@@ -88,9 +88,9 @@ export function MonthGrid({ blocks, year, getBlockForDate }: MonthGridProps) {
               d="M15 19l-7-7 7-7"
             />
           </svg>
-        </motion.button>
+        </m.button>
 
-        <motion.h2
+        <m.h2
           key={format(currentMonth, "MMMM yyyy")}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -98,9 +98,9 @@ export function MonthGrid({ blocks, year, getBlockForDate }: MonthGridProps) {
           className="text-2xl font-bold"
         >
           {format(currentMonth, "MMMM yyyy")}
-        </motion.h2>
+        </m.h2>
 
-        <motion.button
+        <m.button
           onClick={handleNextMonth}
           disabled={isLastMonth}
           className={`
@@ -125,7 +125,7 @@ export function MonthGrid({ blocks, year, getBlockForDate }: MonthGridProps) {
               d="M9 5l7 7-7 7"
             />
           </svg>
-        </motion.button>
+        </m.button>
       </div>
 
       {/* Weekday headers */}
@@ -142,7 +142,7 @@ export function MonthGrid({ blocks, year, getBlockForDate }: MonthGridProps) {
 
       {/* Calendar grid */}
       <AnimatePresence mode="wait">
-        <motion.div
+        <m.div
           key={format(currentMonth, "yyyy-MM")}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -156,7 +156,7 @@ export function MonthGrid({ blocks, year, getBlockForDate }: MonthGridProps) {
             const isTodayDate = isToday(day);
 
             return (
-              <motion.div
+              <m.div
                 key={day.toISOString()}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -206,17 +206,17 @@ export function MonthGrid({ blocks, year, getBlockForDate }: MonthGridProps) {
 
                 {/* Today indicator */}
                 {isTodayDate && (
-                  <motion.div
+                  <m.div
                     className="absolute -top-1 -right-1 w-3 h-3 bg-gray-900 dark:bg-white rounded-full"
                     initial={{ scale: 0 }}
                     animate={{ scale: [0, 1.2, 1] }}
                     transition={{ duration: 0.5 }}
                   />
                 )}
-              </motion.div>
+              </m.div>
             );
           })}
-        </motion.div>
+        </m.div>
       </AnimatePresence>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarView } from "@/components/calendar/CalendarView";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { useState, useEffect } from "react";
 import { SunIcon, MoonIcon } from "@/components/icons";
 
@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Dark mode toggle */}
-      <motion.button
+      <m.button
         onClick={toggleDarkMode}
         className="fixed top-4 right-4 z-50 p-3 rounded-full bg-white dark:bg-gray-900 shadow-lg border border-gray-200 dark:border-gray-800"
         whileHover={{ scale: 1.05 }}
@@ -31,7 +31,7 @@ export default function Home() {
         transition={{ delay: 0.3 }}
       >
         {isDarkMode ? <SunIcon /> : <MoonIcon />}
-      </motion.button>
+      </m.button>
 
       {/* Main calendar */}
       <CalendarView
@@ -45,7 +45,7 @@ export default function Home() {
       {/* Info section */}
       <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 py-12 md:px-8">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -59,10 +59,10 @@ export default function Home() {
               A sustainable approach to productivity that alternates 6 weeks of
               focused work with 1 week of rest and recovery.
             </p>
-          </motion.div>
+          </m.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -89,9 +89,9 @@ export default function Home() {
                 Focus on your goals with sustained effort over six consecutive
                 weeks. Build momentum and make meaningful progress.
               </p>
-            </motion.div>
+            </m.div>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -118,9 +118,9 @@ export default function Home() {
                 Recharge, reflect, and recover. Use this time for creative
                 exploration, learning, or simply taking a break.
               </p>
-            </motion.div>
+            </m.div>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -147,11 +147,11 @@ export default function Home() {
                 This rhythm continues throughout the year, creating a
                 sustainable and predictable work-life balance.
               </p>
-            </motion.div>
+            </m.div>
           </div>
 
           {/* Features */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -189,7 +189,7 @@ export default function Home() {
                 </p>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </div>
     </div>

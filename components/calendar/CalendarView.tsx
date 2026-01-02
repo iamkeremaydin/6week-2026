@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import { useState, lazy, Suspense } from "react";
 import { useCycleLogic } from "@/hooks/useCycleLogic";
 import { Legend } from "./Legend";
@@ -53,7 +53,7 @@ export function CalendarView({
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-4">
         {/* Header */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
@@ -64,17 +64,17 @@ export function CalendarView({
           <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
             {year} — Visualize your work and rest cycles
           </p>
-        </motion.div>
+        </m.div>
 
         {/* View mode selector */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="flex justify-center"
         >
           <div className="inline-flex bg-white dark:bg-gray-900 rounded-lg p-1 shadow-lg border border-gray-200 dark:border-gray-800">
             {VIEW_MODES.map((mode) => (
-              <motion.button
+              <m.button
                 key={mode.value}
                 onClick={() => setViewMode(mode.value)}
                 className={`
@@ -103,10 +103,10 @@ export function CalendarView({
                   />
                 </svg>
                 <span className="hidden sm:inline">{mode.label}</span>
-              </motion.button>
+              </m.button>
             ))}
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Main content area */}
         <div className="grid lg:grid-cols-[1fr_320px] gap-4">
@@ -119,7 +119,7 @@ export function CalendarView({
             }>
               <AnimatePresence mode="wait">
                 {viewMode === "timeline" && (
-                  <motion.div
+                  <m.div
                     key="timeline"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -130,11 +130,11 @@ export function CalendarView({
                       blocks={filteredBlocks}
                       currentBlock={currentBlock}
                     />
-                  </motion.div>
+                  </m.div>
                 )}
 
                 {viewMode === "month" && (
-                  <motion.div
+                  <m.div
                     key="month"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -146,11 +146,11 @@ export function CalendarView({
                       year={year}
                       getBlockForDate={getBlockForDate}
                     />
-                  </motion.div>
+                  </m.div>
                 )}
 
                 {viewMode === "agenda" && (
-                  <motion.div
+                  <m.div
                     key="agenda"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -161,7 +161,7 @@ export function CalendarView({
                       blocks={filteredBlocks}
                       currentBlock={currentBlock}
                     />
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </Suspense>
@@ -179,7 +179,7 @@ export function CalendarView({
         </div>
 
         {/* Footer info */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
@@ -188,7 +188,7 @@ export function CalendarView({
           <p>
             Built with Next.js, React 19, TypeScript, Tailwind CSS, and Motion
           </p>
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );

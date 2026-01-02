@@ -28,9 +28,12 @@ Be respectful, inclusive, and constructive in all interactions.
 ### Running Locally
 
 ```bash
-npm run dev          # Start development server
-npm run lint         # Check for linting errors
-npm run test         # Run tests
+npm run dev              # Start development server
+npm run lint             # ESLint + React Compiler checks
+npm run test             # Unit tests (Vitest)
+npm run test:e2e         # E2E tests (Playwright)
+npm run knip             # Detect unused code
+npm run analyze          # Bundle size analysis
 ```
 
 ### Making Changes
@@ -193,10 +196,11 @@ export function MyComponent({ initialValue }: { initialValue: number }) {
 
 ### Styling
 
-- Use Tailwind CSS utility classes
+- Use Tailwind CSS v4 utility classes
 - Follow the existing color scheme (work/rest colors)
 - Ensure dark mode support with `dark:` classes
 - Keep responsive design in mind
+- Customize colors in `app/globals.css` using the `@theme` block
 
 ```tsx
 <div className="bg-white dark:bg-gray-900 p-4 md:p-6 rounded-lg">
@@ -204,26 +208,42 @@ export function MyComponent({ initialValue }: { initialValue: number }) {
 </div>
 ```
 
+**Tailwind v4 Custom Colors:**
+
+```css
+/* In app/globals.css */
+@theme {
+  --color-work-500: #0ea5e9;
+  --color-rest-500: #d946ef;
+}
+```
+
 ### Animations
 
-- Use Motion (Framer Motion) for animations
+- Use Motion (Framer Motion) with LazyMotion for optimized bundle size
+- Use `m` instead of `motion` for all animated elements
 - Keep animations subtle and purposeful
 - Ensure 60fps performance
-- Use spring physics for natural motion
+- Use animation constants from `lib/calendar/constants.ts`
 
 ```tsx
-<motion.div
+import { m } from 'motion/react';
+import { ANIMATION_CONFIG } from '@/lib/calendar/constants';
+
+<m.div
   initial={{ opacity: 0 }}
   animate={{ opacity: 1 }}
-  transition={{ duration: 0.3 }}
+  transition={{ duration: ANIMATION_CONFIG.DURATION_NORMAL }}
 >
   {/* ... */}
-</motion.div>
+</m.div>
 ```
+
+**Note:** `LazyMotion` is already configured in `app/layout.tsx` - all motion components will be automatically optimized.
 
 ## Testing
 
-### Writing Tests
+### Writing Unit Tests
 
 - Write tests for all core logic functions
 - Test edge cases and error conditions
@@ -231,6 +251,9 @@ export function MyComponent({ initialValue }: { initialValue: number }) {
 - Keep tests focused and readable
 
 ```typescript
+import { describe, it, expect } from 'vitest';
+import { buildSixPlusOneBlocks } from './cycle-logic';
+
 describe("buildSixPlusOneBlocks", () => {
   it("should generate correct number of blocks for a year", () => {
     const blocks = buildSixPlusOneBlocks(config, 2026);
@@ -239,13 +262,102 @@ describe("buildSixPlusOneBlocks", () => {
 });
 ```
 
+### Writing E2E Tests
+
+Create tests in the `e2e/` directory:
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('calendar loads correctly', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText(/6\+1 Week Cycle/i)).toBeVisible();
+});
+```
+
 ### Running Tests
 
 ```bash
-npm test              # Run all tests
-npm run test:ui       # Run with UI
-npm run test:coverage # Check coverage
+# Unit tests
+npm test                  # Run Vitest
+npm run test:ui          # Interactive UI
+npm run test:coverage    # Coverage report
+
+# E2E tests
+npm run test:e2e         # Run Playwright
+npm run test:e2e:ui      # Playwright UI mode
+
+# Code quality
+npm run knip             # Find unused code
+npm run lint             # ESLint + React Compiler
 ```
+
+## Performance & Optimization
+
+### React Compiler
+
+The React 19 Compiler is enabled - it automatically optimizes components:
+
+**DON'T manually memoize:**
+
+```tsx
+// ❌ No longer needed
+const value = useMemo(() => compute(data), [data]);
+const handler = useCallback(() => onClick(), []);
+```
+
+**DO write clean code:**
+
+```tsx
+// ✅ Compiler handles optimization
+const value = compute(data);
+const handler = () => onClick();
+```
+
+**ESLint will warn** if you write code that prevents compiler optimization.
+
+### Logging Best Practices
+
+Use structured logging instead of console.log:
+
+```tsx
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('MyComponent');
+
+// ✅ Good
+log.info({ userId, action }, 'User action completed');
+log.error({ error, context }, 'Operation failed');
+
+// ❌ Avoid
+console.log('User action completed');
+```
+
+### Constants Usage
+
+Always use constants instead of magic numbers:
+
+```tsx
+import { ANIMATION_CONFIG, CYCLE_CONFIG } from '@/lib/calendar/constants';
+
+// ✅ Good
+const duration = ANIMATION_CONFIG.DURATION_NORMAL;
+const weeks = CYCLE_CONFIG.DEFAULT_WORK_WEEKS;
+
+// ❌ Avoid
+const duration = 0.3;
+const weeks = 6;
+```
+
+### Dead Code Detection
+
+Run Knip before submitting:
+
+```bash
+npm run knip
+```
+
+Remove any unused exports, dependencies, or files it identifies.
 
 ## Pull Request Process
 

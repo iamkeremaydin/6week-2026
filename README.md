@@ -1,13 +1,29 @@
 # 6+1 Week Cycle Calendar
 
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8)](https://tailwindcss.com/)
+
 Calendar component for 6-week work + 1-week rest cycles.
+
+**Repository:** https://github.com/iamkeremaydin/6week-2026
 
 ## Getting Started
 
 ```bash
+# Clone the repository
+git clone https://github.com/iamkeremaydin/6week-2026.git
+cd 6week-2026
+
+# Install dependencies
 npm install
+
+# Start development server
 npm run dev
 ```
+
+Open [http://localhost:3000](http://localhost:3000)
 
 ## Features
 

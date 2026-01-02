@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useInView } from "motion/react";
+import { m, useInView } from "motion/react";
 import { format } from "date-fns";
 import { useRef, useState } from "react";
 import type { Block } from "@/lib/calendar/types";
@@ -29,7 +29,7 @@ function AgendaItem({
   )}`;
 
   return (
-    <motion.div
+    <m.div
       ref={ref}
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
@@ -43,7 +43,7 @@ function AgendaItem({
         ${isCurrentWeek ? "ring-2 ring-gray-900 dark:ring-white" : ""}
       `}
     >
-      <motion.div
+      <m.div
         className={`
           p-6 cursor-pointer
           ${
@@ -61,7 +61,7 @@ function AgendaItem({
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               {/* Type badge */}
-              <motion.span
+              <m.span
                 className={`
                   px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide
                   ${
@@ -73,18 +73,18 @@ function AgendaItem({
                 whileHover={{ scale: 1.05 }}
               >
                 {block.type}
-              </motion.span>
+              </m.span>
 
               {/* Current week indicator */}
               {isCurrentWeek && (
-                <motion.span
+                <m.span
                   className="px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded text-xs font-medium"
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.3 }}
                 >
                   Current
-                </motion.span>
+                </m.span>
               )}
             </div>
 
@@ -97,7 +97,7 @@ function AgendaItem({
           </div>
 
           {/* Expand icon */}
-          <motion.div
+          <m.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
             transition={{ duration: 0.3 }}
             className="text-gray-400 dark:text-gray-500"
@@ -115,11 +115,11 @@ function AgendaItem({
                 d="M19 9l-7 7-7-7"
               />
             </svg>
-          </motion.div>
+          </m.div>
         </div>
 
         {/* Expanded content */}
-        <motion.div
+        <m.div
           initial={false}
           animate={{
             height: isExpanded ? "auto" : 0,
@@ -162,11 +162,11 @@ function AgendaItem({
               </div>
             </div>
           </div>
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
 
       {/* Decorative gradient */}
-      <motion.div
+      <m.div
         className={`
           absolute inset-0 opacity-0 pointer-events-none
           bg-gradient-to-r
@@ -179,14 +179,14 @@ function AgendaItem({
         animate={{ opacity: isExpanded ? 1 : 0 }}
         transition={{ duration: 0.3 }}
       />
-    </motion.div>
+    </m.div>
   );
 }
 
 export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
   return (
     <div className="w-full max-w-4xl mx-auto space-y-4">
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="mb-6"
@@ -195,14 +195,15 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
         <p className="text-gray-600 dark:text-gray-400">
           Click on any week to see more details
         </p>
-      </motion.div>
+      </m.div>
 
       <div className="space-y-3">
         {blocks.map((block, index) => {
-          const isCurrentWeek =
+          const isCurrentWeek = !!(
             currentBlock &&
             block.cycleNumber === currentBlock.cycleNumber &&
-            block.weekInCycle === currentBlock.weekInCycle;
+            block.weekInCycle === currentBlock.weekInCycle
+          );
 
           return (
             <AgendaItem
@@ -216,7 +217,7 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       </div>
 
       {/* End of list indicator */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: blocks.length * 0.05 }}
@@ -224,7 +225,7 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       >
         <div className="w-16 h-0.5 bg-gray-300 dark:bg-gray-700 mx-auto mb-2" />
         <p className="text-sm">End of year</p>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

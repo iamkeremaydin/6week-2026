@@ -1,0 +1,24 @@
+{
+  "entry": [
+    "next.config.ts",
+    "app/**/page.tsx",
+    "app/**/layout.tsx",
+    "app/**/route.ts",
+    "app/**/loading.tsx",
+    "app/**/error.tsx",
+    "app/**/not-found.tsx",
+    "vitest.config.ts"
+  ],
+  "project": [
+    "**/*.{ts,tsx}"
+  ],
+  "ignore": [
+    "node_modules/**",
+    ".next/**",
+    "coverage/**"
+  ],
+  "ignoreDependencies": [
+    "eslint-config-next"
+  ]
+}
+

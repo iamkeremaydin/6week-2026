@@ -618,5 +618,193 @@ END:VCALENDAR`;
 
 ---
 
+## Performance & Optimization
+
+### Structured Logging with Pino
+
+Use the logger for production-grade observability:
+
+```tsx
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('CalendarView');
+
+function MyComponent() {
+  useEffect(() => {
+    log.info('Component mounted');
+    
+    try {
+      // Your logic
+      log.debug({ data }, 'Processing calendar data');
+    } catch (error) {
+      log.error({ error }, 'Failed to process data');
+    }
+  }, []);
+}
+```
+
+Log levels: `trace`, `debug`, `info`, `warn`, `error`, `fatal`
+
+Set log level via environment variable:
+
+```bash
+LOG_LEVEL=debug npm run dev
+```
+
+### React Compiler Optimization
+
+The React 19 Compiler is enabled automatically. It optimizes your components without manual memoization.
+
+**Before (manual optimization):**
+
+```tsx
+const expensiveValue = useMemo(() => computeExpensiveValue(data), [data]);
+const handler = useCallback(() => handleClick(), []);
+```
+
+**After (automatic optimization):**
+
+```tsx
+// Just write normal code - the compiler handles it!
+const expensiveValue = computeExpensiveValue(data);
+const handler = () => handleClick();
+```
+
+### LazyMotion Bundle Optimization
+
+Motion animations are lazy-loaded for 40-60% smaller bundle:
+
+```tsx
+import { m } from 'motion/react'; // Use 'm' instead of 'motion'
+
+<m.div animate={{ opacity: 1 }}>
+  Content
+</m.div>
+```
+
+The `LazyMotion` wrapper in `app/layout.tsx` handles the rest.
+
+### Bundle Analysis
+
+Analyze your bundle composition:
+
+```bash
+npm run analyze
+```
+
+This opens an interactive visualization showing:
+- Chunk sizes
+- Dependency weights
+- Optimization opportunities
+
+### Partial Prerendering (PPR)
+
+PPR is enabled for optimal Time to First Byte (TTFB):
+
+```tsx
+// Dynamic components are automatically streamed
+<Suspense fallback={<Loading />}>
+  <DynamicComponent />
+</Suspense>
+```
+
+Static parts render immediately, dynamic parts stream in.
+
+### Dead Code Detection
+
+Find unused code and dependencies:
+
+```bash
+npm run knip           # Detect unused code
+npm run knip:fix       # Auto-fix where possible
+```
+
+Run this regularly to keep your codebase clean.
+
+---
+
+## Testing
+
+### Unit Tests
+
+```bash
+npm test                  # Run Vitest
+npm run test:ui          # Interactive test UI
+npm run test:coverage    # With coverage report
+```
+
+Example component test:
+
+```tsx
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { CalendarView } from './CalendarView';
+
+describe('CalendarView', () => {
+  it('renders the calendar', () => {
+    render(<CalendarView year={2026} />);
+    expect(screen.getByText(/6\+1 Week Cycle Calendar/i)).toBeInTheDocument();
+  });
+});
+```
+
+### E2E Tests
+
+```bash
+npm run test:e2e         # Run Playwright tests
+npm run test:e2e:ui      # Interactive mode
+```
+
+Example E2E test (`e2e/calendar.spec.ts`):
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('calendar view switches work', async ({ page }) => {
+  await page.goto('/');
+  
+  // Check initial state
+  await expect(page.getByText('Timeline')).toBeVisible();
+  
+  // Switch to month view
+  await page.getByRole('button', { name: 'Month' }).click();
+  await expect(page.getByText(/January 2026/i)).toBeVisible();
+});
+```
+
+---
+
+## Constants Reference
+
+All magic numbers are centralized in `lib/calendar/constants.ts`:
+
+```tsx
+import { 
+  ANIMATION_CONFIG,
+  CYCLE_CONFIG,
+  UI_CONFIG,
+  DATE_FORMATS,
+  TEXT 
+} from '@/lib/calendar/constants';
+
+// Use in components
+<m.div 
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ duration: ANIMATION_CONFIG.DURATION_NORMAL }}
+>
+  {TEXT.WORK_WEEK_LABEL}
+</m.div>
+```
+
+Available configs:
+- `ANIMATION_CONFIG` - Duration, delay, easing presets
+- `CYCLE_CONFIG` - Default work/rest weeks, start date
+- `UI_CONFIG` - Common animation props (whileHover, whileTap)
+- `DATE_FORMATS` - Standard date format strings
+- `TEXT` - UI labels and messages
+
+---
+
 For more examples, see the demo page in `app/page.tsx`.
 

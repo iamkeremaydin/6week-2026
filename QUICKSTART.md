@@ -5,6 +5,10 @@ Get up and running with the 6+1 Week Cycle Calendar in under 5 minutes.
 ## Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/iamkeremaydin/6week-2026.git
+cd 6week-2026
+
 # Install dependencies
 npm install
 
@@ -12,7 +16,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000) (or the port shown in your terminal)
 
 ## Basic Usage
 
@@ -72,8 +76,18 @@ function MyCalendar() {
 ## Testing
 
 ```bash
-npm test              # Run tests
+# Unit tests
+npm test              # Run Vitest
 npm run test:ui       # Open test UI
+npm run test:coverage # Run with coverage
+
+# E2E tests
+npm run test:e2e      # Run Playwright tests
+npm run test:e2e:ui   # Run with Playwright UI
+
+# Code quality
+npm run lint          # ESLint + React Compiler checks
+npm run knip          # Find unused code/dependencies
 ```
 
 ## Common Patterns
@@ -111,12 +125,17 @@ const blocks = buildSixPlusOneBlocks(
 
 ### Change Colors
 
-Edit `tailwind.config.ts`:
+Edit `app/globals.css` (Tailwind v4 uses CSS-based configuration):
 
-```typescript
-colors: {
-  work: { /* your colors */ },
-  rest: { /* your colors */ },
+```css
+@theme {
+  /* Customize work cycle colors */
+  --color-work-500: #0ea5e9;
+  --color-work-600: #0284c7;
+  
+  /* Customize rest cycle colors */
+  --color-rest-500: #d946ef;
+  --color-rest-600: #c026d3;
 }
 ```
 
@@ -180,6 +199,39 @@ Click on the cycle markers to add custom labels:
     ├── types.ts           # TypeScript types
     └── constants.ts       # Configuration constants
 ```
+
+## Performance & Quality
+
+### Bundle Analysis
+
+Analyze your bundle size:
+
+```bash
+npm run analyze
+```
+
+Opens an interactive visualization of your bundle composition.
+
+### Structured Logging
+
+Use Pino for production-grade logging:
+
+```tsx
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('MyComponent');
+
+log.info('Component mounted');
+log.error({ error }, 'Failed to load data');
+```
+
+### React Compiler
+
+The React 19 Compiler is enabled by default - it automatically optimizes your components. No manual `useMemo`/`useCallback` needed!
+
+### OpenTelemetry
+
+Distributed tracing is enabled via `instrumentation.ts` for production observability.
 
 ## Next Steps
 

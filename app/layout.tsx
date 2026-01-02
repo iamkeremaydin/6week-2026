@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { LazyMotion, domAnimation } from "motion/react";
 
 export const metadata: Metadata = {
   title: "6+1 Week Cycle Calendar",
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <LazyMotion features={domAnimation} strict>
+          {children}
+        </LazyMotion>
       </body>
     </html>
   );
