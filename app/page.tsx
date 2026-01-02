@@ -23,7 +23,7 @@ export default function Home() {
       {/* Dark mode toggle */}
       <m.button
         onClick={toggleDarkMode}
-        className="fixed top-4 right-4 z-50 p-3 rounded-full bg-white dark:bg-gray-900 shadow-lg border border-gray-200 dark:border-gray-800"
+        className="fixed top-2 right-2 sm:top-4 sm:right-4 z-50 p-2 sm:p-3 rounded-full bg-white dark:bg-gray-900 shadow-lg border border-gray-200 dark:border-gray-800"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         initial={{ opacity: 0, y: -20 }}
@@ -44,34 +44,34 @@ export default function Home() {
 
       {/* Info section */}
       <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 py-12 md:px-8">
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12 md:px-8">
           <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-3xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 px-2">
               The 6+1 Week Cycle Methodology
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
               A sustainable approach to productivity that alternates 6 weeks of
               focused work with 1 week of rest and recovery.
             </p>
           </m.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="bg-work-50 dark:bg-work-950 p-6 rounded-xl"
+              className="bg-work-50 dark:bg-work-950 p-4 sm:p-6 rounded-xl"
             >
-              <div className="w-12 h-12 bg-work-500 rounded-lg flex items-center justify-center mb-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-work-500 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
                 <svg
-                  className="w-6 h-6 text-white"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -84,8 +84,8 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2">6 Weeks of Work</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <h3 className="text-lg sm:text-xl font-bold mb-2">6 Weeks of Work</h3>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 Focus on your goals with sustained effort over six consecutive
                 weeks. Build momentum and make meaningful progress.
               </p>
@@ -96,11 +96,11 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-rest-50 dark:bg-rest-950 p-6 rounded-xl"
+              className="bg-rest-50 dark:bg-rest-950 p-4 sm:p-6 rounded-xl"
             >
-              <div className="w-12 h-12 bg-rest-500 rounded-lg flex items-center justify-center mb-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-rest-500 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
                 <svg
-                  className="w-6 h-6 text-white"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -113,8 +113,8 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2">1 Week of Rest</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <h3 className="text-lg sm:text-xl font-bold mb-2">1 Week of Rest</h3>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 Recharge, reflect, and recover. Use this time for creative
                 exploration, learning, or simply taking a break.
               </p>
@@ -125,11 +125,11 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl"
+              className="bg-gray-50 dark:bg-gray-800 p-4 sm:p-6 rounded-xl"
             >
-              <div className="w-12 h-12 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center mb-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center mb-3 sm:mb-4">
                 <svg
-                  className="w-6 h-6 text-white dark:text-gray-900"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-white dark:text-gray-900"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -142,8 +142,8 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2">Repeatable Cycle</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <h3 className="text-lg sm:text-xl font-bold mb-2">Repeatable Cycle</h3>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 This rhythm continues throughout the year, creating a
                 sustainable and predictable work-life balance.
               </p>
@@ -156,35 +156,35 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="mt-12 text-center"
+            className="mt-8 sm:mt-12 text-center"
           >
-            <h3 className="text-2xl font-bold mb-6">Features</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="p-4">
-                <div className="text-3xl mb-2">🎨</div>
-                <h4 className="font-semibold mb-1">Premium Animations</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+            <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Features</h3>
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <div className="p-3 sm:p-4">
+                <div className="text-2xl sm:text-3xl mb-2">🎨</div>
+                <h4 className="text-sm sm:text-base font-semibold mb-1">Premium Animations</h4>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                   Smooth transitions and micro-interactions
                 </p>
               </div>
-              <div className="p-4">
-                <div className="text-3xl mb-2">📅</div>
-                <h4 className="font-semibold mb-1">Three View Modes</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="p-3 sm:p-4">
+                <div className="text-2xl sm:text-3xl mb-2">📅</div>
+                <h4 className="text-sm sm:text-base font-semibold mb-1">Three View Modes</h4>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                   Timeline, Month Grid, and Agenda List
                 </p>
               </div>
-              <div className="p-4">
-                <div className="text-3xl mb-2">🌓</div>
-                <h4 className="font-semibold mb-1">Dark Mode</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="p-3 sm:p-4">
+                <div className="text-2xl sm:text-3xl mb-2">🌓</div>
+                <h4 className="text-sm sm:text-base font-semibold mb-1">Dark Mode</h4>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                   Beautiful in light and dark themes
                 </p>
               </div>
-              <div className="p-4">
-                <div className="text-3xl mb-2">⚡</div>
-                <h4 className="font-semibold mb-1">Performance First</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="p-3 sm:p-4">
+                <div className="text-2xl sm:text-3xl mb-2">⚡</div>
+                <h4 className="text-sm sm:text-base font-semibold mb-1">Performance First</h4>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                   Optimized rendering and memoization
                 </p>
               </div>

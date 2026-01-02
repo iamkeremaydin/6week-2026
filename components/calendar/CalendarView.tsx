@@ -54,18 +54,18 @@ export function CalendarView({
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 p-4 md:p-6">
-      <div className="max-w-7xl mx-auto space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 p-2 sm:p-4 md:p-6 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto space-y-3 sm:space-y-4">
         {/* Header */}
         <m.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center"
+          className="text-center px-2"
         >
-          <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-work-600 to-rest-600">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2 bg-clip-text text-transparent bg-gradient-to-r from-work-600 to-rest-600">
             6+1 Week Cycle Calendar
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
+          <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm md:text-base">
             {year} — Visualize your work and rest cycles
           </p>
         </m.div>
@@ -82,7 +82,7 @@ export function CalendarView({
                 key={mode.value}
                 onClick={() => setViewMode(mode.value)}
                 className={`
-                  flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
+                  flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium
                   transition-colors duration-200
                   ${
                     viewMode === mode.value
@@ -94,7 +94,7 @@ export function CalendarView({
                 whileTap={{ scale: 0.98 }}
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -113,9 +113,9 @@ export function CalendarView({
         </m.div>
 
         {/* Main content area */}
-        <div className="grid lg:grid-cols-[1fr_320px] gap-4">
+        <div className="grid lg:grid-cols-[1fr_280px] xl:grid-cols-[1fr_320px] gap-3 sm:gap-4">
           {/* Calendar views */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl p-2 md:p-4 shadow-lg border border-gray-200 dark:border-gray-800 min-h-[500px] lg:min-h-[700px] overflow-visible">
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-2 sm:p-3 md:p-4 shadow-lg border border-gray-200 dark:border-gray-800 min-h-[500px] lg:min-h-[700px] overflow-x-hidden">
             <Suspense fallback={
               <div className="flex items-center justify-center h-[500px]">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-work-500"></div>

@@ -30,18 +30,18 @@ export function Legend({
     <m.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-800"
+      className="bg-white dark:bg-gray-900 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-800"
     >
       {/* Header */}
-      <div className="mb-6">
-        <h3 className="text-lg font-bold mb-2">Calendar Legend</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="mb-4 sm:mb-6">
+        <h3 className="text-base sm:text-lg font-bold mb-1 sm:mb-2">Calendar Legend</h3>
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
           Filter and customize your view
         </p>
       </div>
 
       {/* Block type indicators */}
-      <div className="space-y-4 mb-6">
+      <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 rounded bg-work-400 dark:bg-work-600 shadow-sm" />
           <div>
@@ -62,13 +62,13 @@ export function Legend({
         </div>
       </div>
 
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-4 sm:pt-6 space-y-3 sm:space-y-4">
         {/* Cycle info */}
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
             Total Cycles
           </p>
-          <p className="text-2xl font-bold">{totalCycles}</p>
+          <p className="text-xl sm:text-2xl font-bold">{totalCycles}</p>
           {currentCycleNumber && (
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
               Currently in cycle #{currentCycleNumber}
@@ -81,7 +81,7 @@ export function Legend({
           <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 block">
             Filter by Type
           </label>
-          <div className="flex gap-2">
+          <div className="flex gap-1 sm:gap-2">
             {blockTypes.map((type) => (
               <m.button
                 key={type.value}
@@ -89,7 +89,7 @@ export function Legend({
                   onFilterChange({ ...filterOptions, blockType: type.value })
                 }
                 className={`
-                  flex-1 px-3 py-2 rounded-lg text-xs font-medium
+                  flex-1 px-2 sm:px-3 py-2 rounded-lg text-[10px] sm:text-xs font-medium
                   transition-colors duration-200
                   ${
                     filterOptions.blockType === type.value
@@ -111,13 +111,13 @@ export function Legend({
           <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 block">
             Filter by Cycle
           </label>
-          <div className="flex gap-2">
+          <div className="flex gap-1 sm:gap-2">
             <m.button
               onClick={() =>
                 onFilterChange({ ...filterOptions, cycleNumber: undefined })
               }
               className={`
-                px-3 py-2 rounded-lg text-xs font-medium
+                px-2 sm:px-3 py-2 rounded-lg text-[10px] sm:text-xs font-medium
                 transition-colors duration-200
                 ${
                   !filterOptions.cycleNumber
@@ -138,7 +138,7 @@ export function Legend({
                   cycleNumber: e.target.value ? Number(e.target.value) : undefined,
                 })
               }
-              className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className="flex-1 px-2 sm:px-3 py-2 rounded-lg text-[10px] sm:text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             >
               <option value="">Select cycle...</option>
               {Array.from({ length: totalCycles }, (_, i) => i + 1).map(
@@ -160,7 +160,7 @@ export function Legend({
             onClick={() =>
               onFilterChange({ blockType: "all", cycleNumber: undefined })
             }
-            className="w-full px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="w-full px-2 sm:px-3 py-2 rounded-lg text-[10px] sm:text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >

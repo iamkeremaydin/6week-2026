@@ -45,7 +45,7 @@ function AgendaItem({
     >
       <m.div
         className={`
-          p-6 cursor-pointer
+          p-4 sm:p-6 cursor-pointer
           ${
             block.type === "work"
               ? "bg-work-50 dark:bg-work-950 hover:bg-work-100 dark:hover:bg-work-900"
@@ -57,13 +57,13 @@ function AgendaItem({
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
       >
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
               {/* Type badge */}
               <m.span
                 className={`
-                  px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide
+                  px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold uppercase tracking-wide
                   ${
                     block.type === "work"
                       ? "bg-work-500 text-white"
@@ -78,7 +78,7 @@ function AgendaItem({
               {/* Current week indicator */}
               {isCurrentWeek && (
                 <m.span
-                  className="px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded text-xs font-medium"
+                  className="px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded text-[10px] sm:text-xs font-medium"
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.3 }}
@@ -88,10 +88,10 @@ function AgendaItem({
               )}
             </div>
 
-            <h3 className="text-lg font-semibold mb-1 text-gray-900 dark:text-white">
+            <h3 className="text-base sm:text-lg font-semibold mb-1 text-gray-900 dark:text-white">
               Week {block.weekInCycle} of Cycle {block.cycleNumber}
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               {weekRange}
             </p>
           </div>
@@ -100,10 +100,10 @@ function AgendaItem({
           <m.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
             transition={{ duration: 0.3 }}
-            className="text-gray-400 dark:text-gray-500"
+            className="text-gray-400 dark:text-gray-500 flex-shrink-0"
           >
             <svg
-              className="w-6 h-6"
+              className="w-5 h-5 sm:w-6 sm:h-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -128,8 +128,8 @@ function AgendaItem({
           transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
           className="overflow-hidden"
         >
-          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
               <div>
                 <span className="font-medium text-gray-500 dark:text-gray-400">
                   Start Date:
@@ -189,19 +189,19 @@ function AgendaItem({
  */
 export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-4">
+    <div className="w-full max-w-4xl mx-auto space-y-3 sm:space-y-4 px-2 sm:px-0">
       <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
+        className="mb-4 sm:mb-6"
       >
-        <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Agenda View</h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <h2 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2 text-gray-900 dark:text-white">Agenda View</h2>
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
           Click on any week to see more details
         </p>
       </m.div>
 
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         {blocks.map((block, index) => {
           const isCurrentWeek = !!(
             currentBlock &&

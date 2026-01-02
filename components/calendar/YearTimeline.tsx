@@ -97,10 +97,10 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
   }, [handleLabelSave]);
 
   return (
-    <div className="w-full h-full overflow-y-auto overflow-x-visible">
-      <div className="flex gap-4 md:gap-8 min-h-[800px] relative px-2">
+    <div className="w-full h-full overflow-y-auto overflow-x-hidden">
+      <div className="flex gap-2 sm:gap-4 md:gap-8 min-h-[800px] relative px-2 sm:px-4">
         {/* Left side - Months */}
-        <div className="flex-shrink-0 w-24 md:w-32">
+        <div className="flex-shrink-0 w-16 sm:w-20 md:w-24 lg:w-32">
           <div className="sticky top-0 space-y-1">
             {MONTHS.map((month, index) => (
               <m.div
@@ -108,14 +108,14 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.3 }}
-                className="h-16 flex items-center gap-3 px-3 py-2 rounded-lg bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700"
+                className="h-16 flex items-center gap-1 sm:gap-2 md:gap-3 px-1 sm:px-2 md:px-3 py-2 rounded-lg bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700"
               >
-                <span className="text-2xl">{month.icon}</span>
+                <span className="text-xl sm:text-2xl">{month.icon}</span>
                 <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {month.name}
+                  <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
+                    {month.name.substring(0, 3)}
                   </span>
-                  <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                  <span className="text-[10px] text-gray-500 dark:text-gray-400 hidden sm:inline">
                     2026
                   </span>
                 </div>
@@ -130,7 +130,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-work-300 via-work-400 to-work-500 dark:from-work-600 dark:via-work-700 dark:to-work-800 rounded-full" />
 
           {/* Cycles - using static positioning instead of absolute */}
-          <div className="ml-8 space-y-4">
+          <div className="ml-4 sm:ml-6 md:ml-8 space-y-4">
             {cycles.map((cycle, cycleIndex) => {
               const isCurrentCycle = cycle.weeks.some(week => 
                 currentBlock && isSameWeek(week.start, currentBlock.start)
@@ -143,7 +143,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: cycleIndex * 0.1, duration: 0.5 }}
-                  className="relative flex gap-3"
+                  className="relative flex flex-col sm:flex-row gap-2 sm:gap-3"
                 >
                   {/* Start marker */}
                   <m.div
@@ -161,26 +161,26 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                     animate={{ scaleY: 1 }}
                     transition={{ delay: cycleIndex * 0.1 + 0.1, duration: 0.5 }}
                     className={`
-                      w-[560px] rounded-lg overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-850 border-2 
+                      w-full sm:w-[480px] md:w-[560px] rounded-lg overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-850 border-2 
                       ${isCurrentCycle 
                         ? "border-work-500 dark:border-work-400 shadow-2xl" 
                         : "border-gray-200 dark:border-gray-700 shadow-lg"}
-                      p-4
+                      p-3 sm:p-4
                     `}
                     style={{ transformOrigin: "top" }}
                   >
                     {/* Cycle Header */}
                     <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-work-500 to-work-600 dark:from-work-600 dark:to-work-700 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                      <div className="flex items-center justify-between mb-2 sm:mb-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-work-500 to-work-600 dark:from-work-600 dark:to-work-700 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-md">
                             C{cycle.cycleNumber}
                           </div>
                           <div>
-                            <div className="text-sm font-bold text-gray-900 dark:text-white">
+                            <div className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
                               Cycle {cycle.cycleNumber}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
                               {cycle.weeks.length} weeks
                             </div>
                           </div>
@@ -193,14 +193,14 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                       </div>
 
                       {/* Date Range */}
-                      <div className="space-y-2 mb-3">
-                        <div className="flex items-center justify-between text-xs">
+                      <div className="space-y-1 sm:space-y-2 mb-2 sm:mb-3">
+                        <div className="flex items-center justify-between text-[10px] sm:text-xs">
                           <span className="text-gray-500 dark:text-gray-400">Start:</span>
                           <span className="font-semibold text-gray-900 dark:text-white">
                             {format(cycle.weeks[0].start, "MMM d, yyyy")}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center justify-between text-[10px] sm:text-xs">
                           <span className="text-gray-500 dark:text-gray-400">End:</span>
                           <span className="font-semibold text-gray-900 dark:text-white">
                             {format(cycle.weeks[cycle.weeks.length - 1].start, "MMM d, yyyy")}
@@ -227,14 +227,14 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: cycleIndex * 0.1 + 0.4 }}
-                        className="mt-3 bg-gradient-to-r from-rest-400 to-rest-500 dark:from-rest-600 dark:to-rest-700 rounded-lg p-2 flex items-center gap-2"
+                        className="mt-2 sm:mt-3 bg-gradient-to-r from-rest-400 to-rest-500 dark:from-rest-600 dark:to-rest-700 rounded-lg p-2 flex items-center gap-2"
                       >
-                        <div className="w-8 h-8 bg-white/30 rounded-full flex items-center justify-center text-lg">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/30 rounded-full flex items-center justify-center text-base sm:text-lg">
                           🏖️
                         </div>
                         <div className="flex-1">
-                          <div className="text-xs font-bold text-white">Rest Week</div>
-                          <div className="text-[10px] text-white/80">
+                          <div className="text-[10px] sm:text-xs font-bold text-white">Rest Week</div>
+                          <div className="text-[9px] sm:text-[10px] text-white/80">
                             {format(restWeek.start, "MMM d")} - {format(new Date(restWeek.start.getTime() + 6 * 24 * 60 * 60 * 1000), "MMM d")}
                           </div>
                         </div>
@@ -242,8 +242,8 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                     )}
                   </m.div>
 
-                  {/* Editable label */}
-                  <div className="flex items-center">
+                  {/* Editable label - hidden on mobile, visible on sm and up */}
+                  <div className="hidden sm:flex items-center">
                     {editingCycle === cycle.cycleNumber ? (
                       <input
                         ref={inputRef}
@@ -252,14 +252,14 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                         placeholder="Label..."
                         onBlur={(event) => handleLabelSave(cycle.cycleNumber, event.target.value)}
                         onKeyDown={(event) => handleKeyDown(event, cycle.cycleNumber)}
-                        className="w-32 px-2 py-1 text-xs bg-white dark:bg-gray-800 border-2 border-work-500 dark:border-work-400 rounded-md focus:outline-none focus:ring-2 focus:ring-work-500 dark:focus:ring-work-400 text-gray-900 dark:text-white shadow-lg"
+                        className="w-24 sm:w-32 px-2 py-1 text-xs bg-white dark:bg-gray-800 border-2 border-work-500 dark:border-work-400 rounded-md focus:outline-none focus:ring-2 focus:ring-work-500 dark:focus:ring-work-400 text-gray-900 dark:text-white shadow-lg"
                       />
                     ) : (
                       <m.button
                         onClick={() => handleLabelClick(cycle.cycleNumber)}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="w-32 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors cursor-pointer text-gray-700 dark:text-gray-300 font-medium border border-gray-300 dark:border-gray-600 shadow-md truncate"
+                        className="w-24 sm:w-32 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors cursor-pointer text-gray-700 dark:text-gray-300 font-medium border border-gray-300 dark:border-gray-600 shadow-md truncate"
                       >
                         {cycleLabels[cycle.cycleNumber] || "Add label"}
                       </m.button>

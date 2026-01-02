@@ -62,14 +62,14 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto px-2 sm:px-0">
       {/* Month navigation */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
         <m.button
           onClick={handlePrevMonth}
           disabled={isFirstMonth}
           className={`
-            p-2 rounded-lg transition-colors
+            p-3 sm:p-2 rounded-lg transition-colors
             ${isFirstMonth 
               ? "opacity-30 cursor-not-allowed" 
               : "hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"}
@@ -78,7 +78,7 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
           whileTap={isFirstMonth ? {} : { scale: 0.95 }}
         >
           <svg
-            className="w-6 h-6"
+            className="w-5 h-5 sm:w-6 sm:h-6"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -97,7 +97,7 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
-          className="text-2xl font-bold"
+          className="text-lg sm:text-xl md:text-2xl font-bold"
         >
           {format(currentMonth, "MMMM yyyy")}
         </m.h2>
@@ -106,7 +106,7 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
           onClick={handleNextMonth}
           disabled={isLastMonth}
           className={`
-            p-2 rounded-lg transition-colors
+            p-3 sm:p-2 rounded-lg transition-colors
             ${isLastMonth 
               ? "opacity-30 cursor-not-allowed" 
               : "hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"}
@@ -115,7 +115,7 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
           whileTap={isLastMonth ? {} : { scale: 0.95 }}
         >
           <svg
-            className="w-6 h-6"
+            className="w-5 h-5 sm:w-6 sm:h-6"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -131,11 +131,11 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
       </div>
 
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 gap-2 mb-2">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
         {weekDays.map((day) => (
           <div
             key={day}
-            className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 py-2"
+            className="text-center text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 py-1 sm:py-2"
           >
             {day}
           </div>
@@ -150,7 +150,7 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
-          className="grid grid-cols-7 gap-2"
+          className="grid grid-cols-7 gap-1 sm:gap-2"
         >
           {days.map((day, index) => {
             const block = getBlockForDate(day);
@@ -168,7 +168,7 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
                 }}
                 whileHover={{ scale: 1.05, y: -2 }}
                 className={`
-                  relative aspect-square rounded-lg p-2 cursor-pointer
+                  relative aspect-square rounded-lg p-1 sm:p-2 cursor-pointer flex items-start justify-center
                   transition-all duration-200
                   ${!isCurrentMonth ? "opacity-30" : ""}
                   ${
@@ -183,7 +183,7 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
               >
                 <span
                   className={`
-                    text-sm font-medium
+                    text-xs sm:text-sm font-medium mt-1
                     ${isTodayDate ? "text-gray-900 dark:text-white font-bold" : ""}
                   `}
                 >
