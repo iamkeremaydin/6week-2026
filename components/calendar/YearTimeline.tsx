@@ -34,17 +34,8 @@ const MONTHS = [
 ];
 
 /**
- * YearTimeline component displays a vertical timeline of the year.
- * Features include:
- * - Months displayed vertically on the left with icons
- * - Cycles displayed on the right showing work and rest periods
- * - Visual indication of when each cycle starts, ends, and where rest weeks fall
- * - Current week highlighting
- * - Editable cycle labels
- * 
- * @param props - Component props
- * @param props.blocks - Array of calendar blocks to display
- * @param props.currentBlock - The block containing today's date (if any)
+ * Vertical timeline view showing months and cycles with editable labels.
+ * Displays month indicators on the left and cycle cards on the right showing work/rest periods.
  */
 export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
   const [cycleLabels, setCycleLabels] = useState<CycleLabels>({});

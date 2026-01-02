@@ -7,7 +7,8 @@
 
 Calendar component for 6-week work + 1-week rest cycles.
 
-**Repository:** https://github.com/iamkeremaydin/6week-2026
+**Repository:** https://github.com/iamkeremaydin/6week-2026  
+**Live Demo:** https://6week-2026.vercel.app/
 
 ## Getting Started
 

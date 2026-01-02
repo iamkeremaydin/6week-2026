@@ -24,6 +24,10 @@ export interface CalendarViewProps {
   weekStartsOn?: 0 | 1;
 }
 
+/**
+ * Main calendar container with view switching and filtering controls.
+ * Lazy-loads view components for optimal bundle size.
+ */
 export function CalendarView({
   year = new Date().getFullYear(),
   cycleStartDate = new Date(year, 0, 1),

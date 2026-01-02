@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
 
-// Clean up after each test to avoid memory leaks
+// Cleanup prevents DOM pollution between tests
 afterEach(() => {
   cleanup();
 });

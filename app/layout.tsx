@@ -15,6 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
+        {/* LazyMotion reduces bundle size by ~50% while maintaining full animation capabilities */}
         <LazyMotion features={domAnimation} strict>
           {children}
         </LazyMotion>

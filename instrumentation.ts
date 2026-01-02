@@ -1,13 +1,12 @@
 /**
- * Next.js Instrumentation Hook
- * This file is automatically loaded before the Next.js server starts
- * Perfect for setting up OpenTelemetry tracing and observability
+ * Next.js instrumentation hook for OpenTelemetry setup.
+ * Loaded automatically before server start to enable distributed tracing.
  * 
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation
  */
 
 export async function register() {
-  // Only run OpenTelemetry in Node.js runtime (not Edge)
+  // Skip Edge runtime as OpenTelemetry requires Node.js APIs
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { registerOTel } = await import('@vercel/otel');
     

@@ -8,7 +8,7 @@ import { SunIcon, MoonIcon } from "@/components/icons";
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  // Set dark mode as default on initial load
+  // Apply dark mode on mount since it's the default theme
   useEffect(() => {
     document.documentElement.classList.add("dark");
   }, []);

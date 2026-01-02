@@ -10,6 +10,10 @@ interface LegendProps {
   onFilterChange: (options: FilterOptions) => void;
 }
 
+/**
+ * Sidebar component displaying cycle information and filter controls.
+ * Shows current cycle, legend, and provides filtering by block type or cycle number.
+ */
 export function Legend({
   totalCycles,
   currentCycleNumber,

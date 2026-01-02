@@ -249,3 +249,7 @@ Distributed tracing is enabled via `instrumentation.ts` for production observabi
 
 **You're ready to go!** 🚀
 
+---
+
+**Project**: [6week-2026](https://github.com/iamkeremaydin/6week-2026) by [@iamkeremaydin](https://github.com/iamkeremaydin) | **Demo**: https://6week-2026.vercel.app/
+

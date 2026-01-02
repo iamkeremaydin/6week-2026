@@ -1,17 +1,18 @@
+/**
+ * Core cycle calculation logic for generating work/rest block patterns.
+ * Handles partial cycles at year boundaries and maintains cycle numbering across the year.
+ */
+
 import { addWeeks, startOfWeek, differenceInWeeks, isWithinInterval } from "date-fns";
 import type { Block, CycleConfig, BlockType } from "./types";
 
 /**
- * Builds an array of work/rest blocks for a given year based on the configurable cycle pattern.
- * Each cycle consists of N work weeks followed by M rest weeks.
+ * Generates work/rest blocks for a calendar year based on configurable cycle patterns.
+ * Handles partial cycles at year boundaries by starting before the year if needed.
  * 
- * @param config - Configuration object containing cycle parameters
- * @param config.cycleStartDate - The start date of the first cycle
- * @param config.workWeeks - Number of work weeks in each cycle (default: 6)
- * @param config.restWeeks - Number of rest weeks in each cycle (default: 1)
- * @param config.weekStartsOn - Day of the week that weeks start on (0 = Sunday, 1 = Monday)
- * @param year - The calendar year to generate blocks for
- * @returns Array of Block objects covering the specified year, sorted chronologically
+ * @param config - Cycle configuration with start date and week counts
+ * @param year - Target calendar year for block generation
+ * @returns Chronologically sorted blocks covering the year, clipped to year boundaries
  * @example
  * ```ts
  * const blocks = buildSixPlusOneBlocks({
@@ -35,7 +36,7 @@ export function buildSixPlusOneBlocks(
   const blocks: Block[] = [];
   const cycleLength = workWeeks + restWeeks;
   
-  // Start from before the year if needed to catch partial cycles
+  // Rewind to before year start to capture partial cycles
   while (cursor > yearStart) {
     cursor = addWeeks(cursor, -(cycleLength));
   }
@@ -43,7 +44,6 @@ export function buildSixPlusOneBlocks(
   let cycleNumber = 1;
   
   while (cursor < yearEnd) {
-    // Add work block
     const workStart = cursor;
     const workEnd = addWeeks(workStart, workWeeks);
     
@@ -62,7 +62,6 @@ export function buildSixPlusOneBlocks(
       }
     }
     
-    // Add rest block
     const restStart = workEnd;
     const restEnd = addWeeks(restStart, restWeeks);
     
@@ -89,12 +88,11 @@ export function buildSixPlusOneBlocks(
 }
 
 /**
- * Finds the block that contains a specific date by checking if the date falls
- * within the start and end boundaries of any block.
+ * Locates which work/rest block contains a given date.
  * 
- * @param date - The date to search for
- * @param blocks - Array of blocks to search within
- * @returns The Block containing the date, or undefined if not found
+ * @param date - Target date to locate
+ * @param blocks - Blocks to search through
+ * @returns Matching block or undefined if date falls outside all blocks
  */
 export function getBlockForDate(date: Date, blocks: Block[]): Block | undefined {
   return blocks.find((block) =>
@@ -103,12 +101,12 @@ export function getBlockForDate(date: Date, blocks: Block[]): Block | undefined 
 }
 
 /**
- * Calculates which cycle a given date belongs to, starting from cycle 1.
+ * Determines cycle number for a date based on week offset from cycle start.
  * 
- * @param date - The date to calculate the cycle for
- * @param cycleStartDate - The start date of the first cycle
- * @param cycleLength - Total weeks in one complete cycle (workWeeks + restWeeks, default: 7)
- * @returns The cycle number, 1-indexed
+ * @param date - Date to check
+ * @param cycleStartDate - First cycle's start date
+ * @param cycleLength - Total weeks per cycle (default: 7)
+ * @returns 1-indexed cycle number
  */
 export function getCycleNumber(
   date: Date,
@@ -119,53 +117,29 @@ export function getCycleNumber(
   return Math.floor(weeksDiff / cycleLength) + 1;
 }
 
-/**
- * Gets all blocks of a specific type.
- * @param blocks - Array of all blocks
- * @param type - The block type to filter by
- * @returns Filtered array of blocks
- */
+/** Filters blocks by type (work/rest). */
 export function getBlocksByType(blocks: Block[], type: BlockType): Block[] {
   return blocks.filter((block) => block.type === type);
 }
 
-/**
- * Gets all blocks for a specific cycle number.
- * @param blocks - Array of all blocks
- * @param cycleNumber - The cycle number to filter by
- * @returns Filtered array of blocks
- */
+/** Filters blocks belonging to a specific cycle number. */
 export function getBlocksByCycle(blocks: Block[], cycleNumber: number): Block[] {
   return blocks.filter((block) => block.cycleNumber === cycleNumber);
 }
 
-/**
- * Gets the total number of unique cycles in the blocks array.
- * @param blocks - Array of all blocks
- * @returns Number of unique cycles
- */
+/** Counts distinct cycles in the block array. */
 export function getTotalCycles(blocks: Block[]): number {
   const uniqueCycles = new Set(blocks.map((block) => block.cycleNumber));
   return uniqueCycles.size;
 }
 
-/**
- * Checks if a given date falls within a work week.
- * @param date - The date to check
- * @param blocks - Array of all blocks
- * @returns True if the date is in a work week, false otherwise
- */
+/** Checks if date falls within a work week. */
 export function isWorkWeek(date: Date, blocks: Block[]): boolean {
   const block = getBlockForDate(date, blocks);
   return block?.type === "work";
 }
 
-/**
- * Checks if a given date falls within a rest week.
- * @param date - The date to check
- * @param blocks - Array of all blocks
- * @returns True if the date is in a rest week, false otherwise
- */
+/** Checks if date falls within a rest week. */
 export function isRestWeek(date: Date, blocks: Block[]): boolean {
   const block = getBlockForDate(date, blocks);
   return block?.type === "rest";

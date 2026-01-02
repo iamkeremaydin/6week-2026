@@ -808,3 +808,7 @@ Available configs:
 
 For more examples, see the demo page in `app/page.tsx`.
 
+---
+
+**Project**: [6week-2026](https://github.com/iamkeremaydin/6week-2026) by [@iamkeremaydin](https://github.com/iamkeremaydin) | **Demo**: https://6week-2026.vercel.app/
+

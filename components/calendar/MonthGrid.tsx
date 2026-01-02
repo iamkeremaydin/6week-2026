@@ -22,6 +22,10 @@ interface MonthGridProps {
   getBlockForDate: (date: Date) => Block | undefined;
 }
 
+/**
+ * Traditional month calendar grid with work/rest day highlighting.
+ * Navigation is locked to the configured year to prevent viewing incomplete cycle data.
+ */
 export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date(year, 0, 1));
 
@@ -33,14 +37,13 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  // Check if we're at the boundaries of the year
+  // Navigation is locked to the target year to prevent viewing cycles outside the configured period
   const isFirstMonth = currentMonth.getMonth() === 0 && currentMonth.getFullYear() === year;
   const isLastMonth = currentMonth.getMonth() === 11 && currentMonth.getFullYear() === year;
 
   const handlePrevMonth = () => {
     setCurrentMonth((prev) => {
       const newMonth = subMonths(prev, 1);
-      // Don't allow going before January of the target year
       if (newMonth.getFullYear() < year || (newMonth.getFullYear() === year && newMonth.getMonth() < 0)) {
         return prev;
       }
@@ -51,7 +54,6 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
   const handleNextMonth = () => {
     setCurrentMonth((prev) => {
       const newMonth = addMonths(prev, 1);
-      // Don't allow going after December of the target year
       if (newMonth.getFullYear() > year || (newMonth.getFullYear() === year && newMonth.getMonth() > 11)) {
         return prev;
       }

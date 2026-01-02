@@ -432,3 +432,7 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 Thank you for contributing to the 6+1 Week Cycle Calendar! 🎉
 
+---
+
+**Project**: [6week-2026](https://github.com/iamkeremaydin/6week-2026) by [@iamkeremaydin](https://github.com/iamkeremaydin) | **Demo**: https://6week-2026.vercel.app/
+

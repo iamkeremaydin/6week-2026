@@ -183,6 +183,10 @@ function AgendaItem({
   );
 }
 
+/**
+ * List view of all weeks with expandable details.
+ * Highlights the current week and provides cycle context for each block.
+ */
 export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
   return (
     <div className="w-full max-w-4xl mx-auto space-y-4">
