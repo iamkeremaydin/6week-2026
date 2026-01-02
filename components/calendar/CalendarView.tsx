@@ -2,6 +2,7 @@
 
 import { m, AnimatePresence } from "motion/react";
 import { useState, lazy, Suspense } from "react";
+import { useTranslations } from 'next-intl';
 import { useCycleLogic } from "@/hooks/useCycleLogic";
 import { Legend } from "./Legend";
 import type { ViewMode } from "@/lib/calendar/types";
@@ -9,12 +10,6 @@ import type { ViewMode } from "@/lib/calendar/types";
 const YearTimeline = lazy(() => import("./YearTimeline").then(mod => ({ default: mod.YearTimeline })));
 const MonthGrid = lazy(() => import("./MonthGrid").then(mod => ({ default: mod.MonthGrid })));
 const AgendaList = lazy(() => import("./AgendaList").then(mod => ({ default: mod.AgendaList })));
-
-const VIEW_MODES = [
-  { value: "timeline" as const, label: "Timeline", icon: "M4 6h16M4 12h16M4 18h16" },
-  { value: "month" as const, label: "Month", icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
-  { value: "agenda" as const, label: "Agenda", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
-] as const;
 
 export interface CalendarViewProps {
   year?: number;
@@ -36,6 +31,9 @@ export function CalendarView({
   weekStartsOn = 1,
 }: CalendarViewProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("timeline");
+  const tApp = useTranslations('app');
+  const tViewModes = useTranslations('viewModes');
+  const tHome = useTranslations('home');
 
   const {
     blocks,
@@ -53,6 +51,12 @@ export function CalendarView({
     weekStartsOn,
   });
 
+  const VIEW_MODES = [
+    { value: "timeline" as const, label: tViewModes('timeline'), icon: "M4 6h16M4 12h16M4 18h16" },
+    { value: "month" as const, label: tViewModes('month'), icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
+    { value: "agenda" as const, label: tViewModes('agenda'), icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+  ] as const;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 p-2 sm:p-4 md:p-6 overflow-x-hidden">
       <div className="max-w-7xl mx-auto space-y-3 sm:space-y-4">
@@ -63,10 +67,10 @@ export function CalendarView({
           className="text-center px-2"
         >
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2 bg-clip-text text-transparent bg-gradient-to-r from-work-600 to-rest-600">
-            6+1 Week Cycle Calendar
+            {tApp('title')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm md:text-base">
-            {year} — Visualize your work and rest cycles
+            {year} — {tApp('subtitle')}
           </p>
         </m.div>
 
@@ -187,10 +191,10 @@ export function CalendarView({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="text-center text-sm text-gray-500 dark:text-gray-400"
+          className="text-center text-xs sm:text-sm text-gray-500 dark:text-gray-400"
         >
           <p>
-            Built with Next.js, React 19, TypeScript, Tailwind CSS, and Motion
+            {tHome('footer')}
           </p>
         </m.div>
       </div>

@@ -1,8 +1,9 @@
 "use client";
 
 import { m, useInView } from "motion/react";
-import { format } from "date-fns";
 import { useRef, useState } from "react";
+import { useTranslations, useLocale } from 'next-intl';
+import { formatFullDateWithWeekday, formatDateRange, type Locale } from "@/lib/i18n/dateFormats";
 import type { Block } from "@/lib/calendar/types";
 
 interface AgendaListProps {
@@ -22,11 +23,14 @@ function AgendaItem({
   const [isExpanded, setIsExpanded] = useState(false);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const t = useTranslations('agenda');
+  const locale = useLocale() as Locale;
 
-  const weekRange = `${format(block.start, "MMM d")} - ${format(
+  const weekRange = formatDateRange(
+    block.start,
     new Date(block.end.getTime() - 1),
-    "MMM d, yyyy"
-  )}`;
+    locale
+  );
 
   return (
     <m.div
@@ -72,7 +76,7 @@ function AgendaItem({
                 `}
                 whileHover={{ scale: 1.05 }}
               >
-                {block.type}
+                {t(block.type)}
               </m.span>
 
               {/* Current week indicator */}
@@ -83,13 +87,13 @@ function AgendaItem({
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.3 }}
                 >
-                  Current
+                  {t('current')}
                 </m.span>
               )}
             </div>
 
             <h3 className="text-base sm:text-lg font-semibold mb-1 text-gray-900 dark:text-white">
-              Week {block.weekInCycle} of Cycle {block.cycleNumber}
+              {t('weekOfCycle', { week: block.weekInCycle, cycle: block.cycleNumber })}
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               {weekRange}
@@ -132,32 +136,32 @@ function AgendaItem({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
               <div>
                 <span className="font-medium text-gray-500 dark:text-gray-400">
-                  Start Date:
+                  {t('startDate')}
                 </span>
                 <p className="mt-1 font-semibold text-gray-900 dark:text-white">
-                  {format(block.start, "EEEE, MMMM d, yyyy")}
+                  {formatFullDateWithWeekday(block.start, locale)}
                 </p>
               </div>
               <div>
                 <span className="font-medium text-gray-500 dark:text-gray-400">
-                  End Date:
+                  {t('endDate')}
                 </span>
                 <p className="mt-1 font-semibold text-gray-900 dark:text-white">
-                  {format(new Date(block.end.getTime() - 1), "EEEE, MMMM d, yyyy")}
+                  {formatFullDateWithWeekday(new Date(block.end.getTime() - 1), locale)}
                 </p>
               </div>
               <div>
                 <span className="font-medium text-gray-500 dark:text-gray-400">
-                  Cycle:
+                  {t('cycle')}
                 </span>
                 <p className="mt-1 font-semibold text-gray-900 dark:text-white">#{block.cycleNumber}</p>
               </div>
               <div>
                 <span className="font-medium text-gray-500 dark:text-gray-400">
-                  Week in Cycle:
+                  {t('weekInCycle')}
                 </span>
                 <p className="mt-1 font-semibold text-gray-900 dark:text-white">
-                  {block.weekInCycle} of 7
+                  {t('weekFormat', { current: block.weekInCycle })}
                 </p>
               </div>
             </div>
@@ -188,6 +192,8 @@ function AgendaItem({
  * Highlights the current week and provides cycle context for each block.
  */
 export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
+  const t = useTranslations('agenda');
+  
   return (
     <div className="w-full max-w-4xl mx-auto space-y-3 sm:space-y-4 px-2 sm:px-0">
       <m.div
@@ -195,9 +201,9 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
         animate={{ opacity: 1, y: 0 }}
         className="mb-4 sm:mb-6"
       >
-        <h2 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2 text-gray-900 dark:text-white">Agenda View</h2>
+        <h2 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2 text-gray-900 dark:text-white">{t('title')}</h2>
         <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-          Click on any week to see more details
+          {t('instruction')}
         </p>
       </m.div>
 
@@ -228,7 +234,7 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
         className="text-center py-8 text-gray-400 dark:text-gray-600"
       >
         <div className="w-16 h-0.5 bg-gray-300 dark:bg-gray-700 mx-auto mb-2" />
-        <p className="text-sm">End of year</p>
+        <p className="text-sm">{t('endOfYear')}</p>
       </m.div>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { m } from "motion/react";
+import { useTranslations } from 'next-intl';
 import type { FilterOptions, BlockType } from "@/lib/calendar/types";
 
 interface LegendProps {
@@ -20,10 +21,12 @@ export function Legend({
   filterOptions,
   onFilterChange,
 }: LegendProps) {
+  const t = useTranslations('legend');
+
   const blockTypes: Array<{ value: BlockType | "all"; label: string }> = [
-    { value: "all", label: "All Weeks" },
-    { value: "work", label: "Work Weeks" },
-    { value: "rest", label: "Rest Weeks" },
+    { value: "all", label: t('allWeeks') },
+    { value: "work", label: t('workWeeks') },
+    { value: "rest", label: t('restWeeks') },
   ];
 
   return (
@@ -34,9 +37,9 @@ export function Legend({
     >
       {/* Header */}
       <div className="mb-4 sm:mb-6">
-        <h3 className="text-base sm:text-lg font-bold mb-1 sm:mb-2">Calendar Legend</h3>
+        <h3 className="text-base sm:text-lg font-bold mb-1 sm:mb-2">{t('title')}</h3>
         <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-          Filter and customize your view
+          {t('subtitle')}
         </p>
       </div>
 
@@ -45,18 +48,18 @@ export function Legend({
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 rounded bg-work-400 dark:bg-work-600 shadow-sm" />
           <div>
-            <p className="font-medium text-sm">Work Week</p>
+            <p className="font-medium text-sm">{t('workWeekLabel')}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              6 weeks of focused work
+              {t('workWeekDesc')}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 rounded bg-rest-400 dark:bg-rest-600 shadow-sm" />
           <div>
-            <p className="font-medium text-sm">Rest Week</p>
+            <p className="font-medium text-sm">{t('restWeekLabel')}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              1 week of rest and recovery
+              {t('restWeekDesc')}
             </p>
           </div>
         </div>
@@ -66,12 +69,12 @@ export function Legend({
         {/* Cycle info */}
         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-            Total Cycles
+            {t('totalCycles')}
           </p>
           <p className="text-xl sm:text-2xl font-bold">{totalCycles}</p>
           {currentCycleNumber && (
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-              Currently in cycle #{currentCycleNumber}
+              {t('currentlyInCycle')}{currentCycleNumber}
             </p>
           )}
         </div>
@@ -79,7 +82,7 @@ export function Legend({
         {/* Filter by type */}
         <div>
           <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 block">
-            Filter by Type
+            {t('filterByType')}
           </label>
           <div className="flex gap-1 sm:gap-2">
             {blockTypes.map((type) => (
@@ -109,7 +112,7 @@ export function Legend({
         {/* Filter by cycle */}
         <div>
           <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 block">
-            Filter by Cycle
+            {t('filterByCycle')}
           </label>
           <div className="flex gap-1 sm:gap-2">
             <m.button
@@ -128,7 +131,7 @@ export function Legend({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              All
+              {t('all')}
             </m.button>
             <select
               value={filterOptions.cycleNumber || ""}
@@ -140,11 +143,11 @@ export function Legend({
               }
               className="flex-1 px-2 sm:px-3 py-2 rounded-lg text-[10px] sm:text-xs font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             >
-              <option value="">Select cycle...</option>
+              <option value="">{t('selectCycle')}</option>
               {Array.from({ length: totalCycles }, (_, i) => i + 1).map(
                 (cycle) => (
                   <option key={cycle} value={cycle}>
-                    Cycle {cycle}
+                    {t('cycleNumber', { number: cycle })}
                   </option>
                 )
               )}
@@ -164,7 +167,7 @@ export function Legend({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            Reset Filters
+            {t('resetFilters')}
           </m.button>
         )}
       </div>

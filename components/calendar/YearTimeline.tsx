@@ -1,8 +1,10 @@
 "use client";
 
 import { m } from "motion/react";
-import { format, isSameWeek, getDayOfYear } from "date-fns";
+import { isSameWeek, getDayOfYear } from "date-fns";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useTranslations, useLocale } from 'next-intl';
+import { formatFullDate, formatDate, type Locale } from "@/lib/i18n/dateFormats";
 import type { Block, CycleLabels } from "@/lib/calendar/types";
 
 interface YearTimelineProps {
@@ -18,20 +20,7 @@ interface CycleData {
   restWeekPosition: number;
 }
 
-const MONTHS = [
-  { name: "January", icon: "❄️" },
-  { name: "February", icon: "💝" },
-  { name: "March", icon: "🌸" },
-  { name: "April", icon: "🌷" },
-  { name: "May", icon: "🌺" },
-  { name: "June", icon: "☀️" },
-  { name: "July", icon: "🏖️" },
-  { name: "August", icon: "🌻" },
-  { name: "September", icon: "🍂" },
-  { name: "October", icon: "🎃" },
-  { name: "November", icon: "🍁" },
-  { name: "December", icon: "🎄" },
-];
+const MONTH_ICONS = ["❄️", "💝", "🌸", "🌷", "🌺", "☀️", "🏖️", "🌻", "🍂", "🎃", "🍁", "🎄"];
 
 /**
  * Vertical timeline view showing months and cycles with editable labels.
@@ -41,6 +30,26 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
   const [cycleLabels, setCycleLabels] = useState<CycleLabels>({});
   const [editingCycle, setEditingCycle] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations('timeline');
+  const tCalendar = useTranslations('calendar');
+  const tMonths = useTranslations('months');
+  const locale = useLocale() as Locale;
+
+  // Month names from translations
+  const MONTHS = useMemo(() => [
+    { name: tMonths('january'), icon: MONTH_ICONS[0] },
+    { name: tMonths('february'), icon: MONTH_ICONS[1] },
+    { name: tMonths('march'), icon: MONTH_ICONS[2] },
+    { name: tMonths('april'), icon: MONTH_ICONS[3] },
+    { name: tMonths('may'), icon: MONTH_ICONS[4] },
+    { name: tMonths('june'), icon: MONTH_ICONS[5] },
+    { name: tMonths('july'), icon: MONTH_ICONS[6] },
+    { name: tMonths('august'), icon: MONTH_ICONS[7] },
+    { name: tMonths('september'), icon: MONTH_ICONS[8] },
+    { name: tMonths('october'), icon: MONTH_ICONS[9] },
+    { name: tMonths('november'), icon: MONTH_ICONS[10] },
+    { name: tMonths('december'), icon: MONTH_ICONS[11] },
+  ], [tMonths]);
 
   useEffect(() => {
     if (editingCycle !== null && inputRef.current) {
@@ -113,7 +122,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                 <span className="text-xl sm:text-2xl">{month.icon}</span>
                 <div className="flex flex-col">
                   <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
-                    {month.name.substring(0, 3)}
+                    {month.name}
                   </span>
                   <span className="text-[10px] text-gray-500 dark:text-gray-400 hidden sm:inline">
                     2026
@@ -178,16 +187,16 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                           </div>
                           <div>
                             <div className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
-                              Cycle {cycle.cycleNumber}
+                              {tCalendar('cycle')} {cycle.cycleNumber}
                             </div>
                             <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
-                              {cycle.weeks.length} weeks
+                              {cycle.weeks.length} {tCalendar('weeks')}
                             </div>
                           </div>
                         </div>
                         {isCurrentCycle && (
                           <div className="px-2 py-1 bg-work-500 dark:bg-work-600 text-white text-[10px] font-bold rounded-full">
-                            CURRENT
+                            {t('current')}
                           </div>
                         )}
                       </div>
@@ -195,15 +204,15 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                       {/* Date Range */}
                       <div className="space-y-1 sm:space-y-2 mb-2 sm:mb-3">
                         <div className="flex items-center justify-between text-[10px] sm:text-xs">
-                          <span className="text-gray-500 dark:text-gray-400">Start:</span>
+                          <span className="text-gray-500 dark:text-gray-400">{t('start')}</span>
                           <span className="font-semibold text-gray-900 dark:text-white">
-                            {format(cycle.weeks[0].start, "MMM d, yyyy")}
+                            {formatFullDate(cycle.weeks[0].start, locale, true)}
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-[10px] sm:text-xs">
-                          <span className="text-gray-500 dark:text-gray-400">End:</span>
+                          <span className="text-gray-500 dark:text-gray-400">{t('end')}</span>
                           <span className="font-semibold text-gray-900 dark:text-white">
-                            {format(cycle.weeks[cycle.weeks.length - 1].start, "MMM d, yyyy")}
+                            {formatFullDate(cycle.weeks[cycle.weeks.length - 1].start, locale, true)}
                           </span>
                         </div>
                       </div>
@@ -212,11 +221,11 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                       <div className="flex items-center gap-2">
                         <div className="flex-1 flex items-center gap-1">
                           <div className="flex-1 h-2 bg-work-400 dark:bg-work-600 rounded-full" />
-                          <span className="text-[10px] text-gray-600 dark:text-gray-400">6W</span>
+                          <span className="text-[10px] text-gray-600 dark:text-gray-400">{t('workAbbrev')}</span>
                         </div>
                         <div className="flex-1 flex items-center gap-1">
                           <div className="flex-1 h-2 bg-rest-400 dark:bg-rest-600 rounded-full" />
-                          <span className="text-[10px] text-gray-600 dark:text-gray-400">1R</span>
+                          <span className="text-[10px] text-gray-600 dark:text-gray-400">{t('restAbbrev')}</span>
                         </div>
                       </div>
                     </div>
@@ -233,9 +242,9 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                           🏖️
                         </div>
                         <div className="flex-1">
-                          <div className="text-[10px] sm:text-xs font-bold text-white">Rest Week</div>
+                          <div className="text-[10px] sm:text-xs font-bold text-white">{t('restWeek')}</div>
                           <div className="text-[9px] sm:text-[10px] text-white/80">
-                            {format(restWeek.start, "MMM d")} - {format(new Date(restWeek.start.getTime() + 6 * 24 * 60 * 60 * 1000), "MMM d")}
+                            {formatDate(restWeek.start, locale === 'tr' ? 'd MMM' : 'MMM d', locale)} - {formatDate(new Date(restWeek.start.getTime() + 6 * 24 * 60 * 60 * 1000), locale === 'tr' ? 'd MMM' : 'MMM d', locale)}
                           </div>
                         </div>
                       </m.div>
@@ -249,7 +258,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                         ref={inputRef}
                         type="text"
                         defaultValue={cycleLabels[cycle.cycleNumber] || ""}
-                        placeholder="Label..."
+                        placeholder={t('labelPlaceholder')}
                         onBlur={(event) => handleLabelSave(cycle.cycleNumber, event.target.value)}
                         onKeyDown={(event) => handleKeyDown(event, cycle.cycleNumber)}
                         className="w-24 sm:w-32 px-2 py-1 text-xs bg-white dark:bg-gray-800 border-2 border-work-500 dark:border-work-400 rounded-md focus:outline-none focus:ring-2 focus:ring-work-500 dark:focus:ring-work-400 text-gray-900 dark:text-white shadow-lg"
@@ -261,7 +270,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                         whileTap={{ scale: 0.95 }}
                         className="w-24 sm:w-32 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors cursor-pointer text-gray-700 dark:text-gray-300 font-medium border border-gray-300 dark:border-gray-600 shadow-md truncate"
                       >
-                        {cycleLabels[cycle.cycleNumber] || "Add label"}
+                        {cycleLabels[cycle.cycleNumber] || t('addLabel')}
                       </m.button>
                     )}
                   </div>

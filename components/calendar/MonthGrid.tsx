@@ -13,7 +13,9 @@ import {
   addMonths,
   subMonths,
 } from "date-fns";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useTranslations, useLocale } from 'next-intl';
+import { formatMonthYear, type Locale } from "@/lib/i18n/dateFormats";
 import type { Block } from "@/lib/calendar/types";
 
 interface MonthGridProps {
@@ -28,6 +30,8 @@ interface MonthGridProps {
  */
 export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date(year, 0, 1));
+  const tWeekdays = useTranslations('weekdays');
+  const locale = useLocale() as Locale;
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -35,7 +39,17 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
   const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
 
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-  const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  
+  // Weekday names from translations
+  const weekDays = useMemo(() => [
+    tWeekdays('mon'),
+    tWeekdays('tue'),
+    tWeekdays('wed'),
+    tWeekdays('thu'),
+    tWeekdays('fri'),
+    tWeekdays('sat'),
+    tWeekdays('sun'),
+  ], [tWeekdays]);
 
   // Navigation is locked to the target year to prevent viewing cycles outside the configured period
   const isFirstMonth = currentMonth.getMonth() === 0 && currentMonth.getFullYear() === year;
@@ -93,13 +107,13 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
         </m.button>
 
         <m.h2
-          key={format(currentMonth, "MMMM yyyy")}
+          key={format(currentMonth, "yyyy-MM")}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
           className="text-lg sm:text-xl md:text-2xl font-bold"
         >
-          {format(currentMonth, "MMMM yyyy")}
+          {formatMonthYear(currentMonth, locale)}
         </m.h2>
 
         <m.button

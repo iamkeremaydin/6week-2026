@@ -1,12 +1,15 @@
 "use client";
 
 import { CalendarView } from "@/components/calendar/CalendarView";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { m } from "motion/react";
 import { useState, useEffect } from "react";
+import { useTranslations } from 'next-intl';
 import { SunIcon, MoonIcon } from "@/components/icons";
 
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const t = useTranslations('home');
 
   // Apply dark mode on mount since it's the default theme
   useEffect(() => {
@@ -20,6 +23,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
+      {/* Language switcher */}
+      <LanguageSwitcher />
+      
       {/* Dark mode toggle */}
       <m.button
         onClick={toggleDarkMode}
@@ -53,11 +59,10 @@ export default function Home() {
             className="text-center mb-8 sm:mb-12"
           >
             <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 px-2">
-              The 6+1 Week Cycle Methodology
+              {t('methodologyTitle')}
             </h2>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
-              A sustainable approach to productivity that alternates 6 weeks of
-              focused work with 1 week of rest and recovery.
+              {t('methodologyDesc')}
             </p>
           </m.div>
 
@@ -84,10 +89,9 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-2">6 Weeks of Work</h3>
+              <h3 className="text-lg sm:text-xl font-bold mb-2">{t('workWeeksTitle')}</h3>
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                Focus on your goals with sustained effort over six consecutive
-                weeks. Build momentum and make meaningful progress.
+                {t('workWeeksDesc')}
               </p>
             </m.div>
 
@@ -113,10 +117,9 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-2">1 Week of Rest</h3>
+              <h3 className="text-lg sm:text-xl font-bold mb-2">{t('restWeekTitle')}</h3>
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                Recharge, reflect, and recover. Use this time for creative
-                exploration, learning, or simply taking a break.
+                {t('restWeekDesc')}
               </p>
             </m.div>
 
@@ -142,10 +145,9 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-2">Repeatable Cycle</h3>
+              <h3 className="text-lg sm:text-xl font-bold mb-2">{t('repeatableCycleTitle')}</h3>
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                This rhythm continues throughout the year, creating a
-                sustainable and predictable work-life balance.
+                {t('repeatableCycleDesc')}
               </p>
             </m.div>
           </div>
@@ -158,34 +160,34 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="mt-8 sm:mt-12 text-center"
           >
-            <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Features</h3>
+            <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{t('featuresTitle')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <div className="p-3 sm:p-4">
                 <div className="text-2xl sm:text-3xl mb-2">🎨</div>
-                <h4 className="text-sm sm:text-base font-semibold mb-1">Premium Animations</h4>
+                <h4 className="text-sm sm:text-base font-semibold mb-1">{t('premiumAnimations')}</h4>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                  Smooth transitions and micro-interactions
+                  {t('premiumAnimationsDesc')}
                 </p>
               </div>
               <div className="p-3 sm:p-4">
                 <div className="text-2xl sm:text-3xl mb-2">📅</div>
-                <h4 className="text-sm sm:text-base font-semibold mb-1">Three View Modes</h4>
+                <h4 className="text-sm sm:text-base font-semibold mb-1">{t('threeViewModes')}</h4>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                  Timeline, Month Grid, and Agenda List
+                  {t('threeViewModesDesc')}
                 </p>
               </div>
               <div className="p-3 sm:p-4">
                 <div className="text-2xl sm:text-3xl mb-2">🌓</div>
-                <h4 className="text-sm sm:text-base font-semibold mb-1">Dark Mode</h4>
+                <h4 className="text-sm sm:text-base font-semibold mb-1">{t('darkMode')}</h4>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                  Beautiful in light and dark themes
+                  {t('darkModeDesc')}
                 </p>
               </div>
               <div className="p-3 sm:p-4">
                 <div className="text-2xl sm:text-3xl mb-2">⚡</div>
-                <h4 className="text-sm sm:text-base font-semibold mb-1">Performance First</h4>
+                <h4 className="text-sm sm:text-base font-semibold mb-1">{t('performanceFirst')}</h4>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                  Optimized rendering and memoization
+                  {t('performanceFirstDesc')}
                 </p>
               </div>
             </div>
