@@ -58,13 +58,13 @@ export function CalendarView({
   ] as const;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 p-2 sm:p-4 md:p-6 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 p-2 sm:p-4 md:p-6 overflow-x-hidden pb-28 sm:pb-6">
       <div className="max-w-7xl mx-auto space-y-3 sm:space-y-4">
         {/* Header */}
         <m.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center px-2"
+          className="text-center px-2 pt-2 sm:pt-0"
         >
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2 bg-clip-text text-transparent bg-gradient-to-r from-work-600 to-rest-600">
             {tApp('title')}

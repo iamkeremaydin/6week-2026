@@ -22,14 +22,14 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-24 sm:pb-0">
       {/* Language switcher */}
       <LanguageSwitcher />
       
       {/* Dark mode toggle */}
       <m.button
         onClick={toggleDarkMode}
-        className="fixed top-2 right-2 sm:top-4 sm:right-4 z-50 p-2 sm:p-3 rounded-full bg-white dark:bg-gray-900 shadow-lg border border-gray-200 dark:border-gray-800"
+        className="fixed bottom-4 right-4 sm:top-4 sm:bottom-auto sm:right-4 z-50 p-2 sm:p-3 rounded-full bg-white dark:bg-gray-900 shadow-lg border border-gray-200 dark:border-gray-800"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         initial={{ opacity: 0, y: -20 }}

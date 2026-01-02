@@ -109,7 +109,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
     <div className="w-full h-full overflow-y-auto overflow-x-hidden">
       <div className="flex gap-2 sm:gap-4 md:gap-8 min-h-[800px] relative px-2 sm:px-4">
         {/* Left side - Months */}
-        <div className="flex-shrink-0 w-16 sm:w-20 md:w-24 lg:w-32">
+        <div className="flex-shrink-0 w-14 sm:w-20 md:w-24 lg:w-32">
           <div className="sticky top-0 space-y-1">
             {MONTHS.map((month, index) => (
               <m.div
@@ -117,14 +117,14 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.3 }}
-                className="h-16 flex items-center gap-1 sm:gap-2 md:gap-3 px-1 sm:px-2 md:px-3 py-2 rounded-lg bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700"
+                className="h-16 flex items-center gap-0.5 sm:gap-2 md:gap-3 px-1 sm:px-2 md:px-3 py-2 rounded-lg bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700 overflow-hidden"
               >
-                <span className="text-xl sm:text-2xl">{month.icon}</span>
-                <div className="flex flex-col">
-                  <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
+                <span className="text-base sm:text-xl md:text-2xl flex-shrink-0">{month.icon}</span>
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="text-[10px] sm:text-xs md:text-sm font-semibold text-gray-900 dark:text-white truncate">
                     {month.name}
                   </span>
-                  <span className="text-[10px] text-gray-500 dark:text-gray-400 hidden sm:inline">
+                  <span className="text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 hidden sm:inline">
                     2026
                   </span>
                 </div>
