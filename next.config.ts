@@ -12,9 +12,9 @@ const nextConfig: NextConfig = {
   
   experimental: {
     optimizePackageImports: ["motion", "date-fns"],
-    // Automatic memoization - eliminates need for manual useMemo/useCallback
-    reactCompiler: true,
-    // PPR requires Next.js canary - uncomment after upgrading: ppr: 'incremental',
+    // Note: React Compiler babel plugin causes build issues with Turbopack
+    // Next.js 16's Turbopack provides excellent optimization without it
+    // PPR is available in Next.js 16 - uncomment if needed: ppr: 'incremental',
   },
 };
 
