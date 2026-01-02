@@ -50,18 +50,18 @@ export function CalendarView({
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-4">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-work-600 to-rest-600">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-work-600 to-rest-600">
             6+1 Week Cycle Calendar
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
+          <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
             {year} — Visualize your work and rest cycles
           </p>
         </motion.div>
@@ -109,9 +109,9 @@ export function CalendarView({
         </motion.div>
 
         {/* Main content area */}
-        <div className="grid lg:grid-cols-[1fr_320px] gap-6">
+        <div className="grid lg:grid-cols-[1fr_320px] gap-4">
           {/* Calendar views */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-800 min-h-[600px]">
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-2 md:p-4 shadow-lg border border-gray-200 dark:border-gray-800 min-h-[500px] lg:min-h-[700px] overflow-visible">
             <Suspense fallback={
               <div className="flex items-center justify-center h-[500px]">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-work-500"></div>

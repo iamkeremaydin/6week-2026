@@ -1,24 +1,47 @@
 "use client";
 
 import { motion } from "motion/react";
-import { format, isSameWeek, startOfMonth, isSameMonth } from "date-fns";
+import { format, isSameWeek, getDayOfYear, startOfYear } from "date-fns";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import type { Block, MonthRange, CycleLabels } from "@/lib/calendar/types";
-import { DIMENSIONS, ANIMATION_CONFIG, DATE_FORMATS, TEXT, CYCLE_CONFIG } from "@/lib/calendar/constants";
+import type { Block, CycleLabels } from "@/lib/calendar/types";
+import { ANIMATION_CONFIG } from "@/lib/calendar/constants";
 
 interface YearTimelineProps {
   blocks: Block[];
   currentBlock?: Block;
 }
 
+interface CycleData {
+  cycleNumber: number;
+  weeks: Block[];
+  startPosition: number;
+  endPosition: number;
+  restWeekPosition: number;
+}
+
+const MONTHS = [
+  { name: "January", icon: "❄️" },
+  { name: "February", icon: "💝" },
+  { name: "March", icon: "🌸" },
+  { name: "April", icon: "🌷" },
+  { name: "May", icon: "🌺" },
+  { name: "June", icon: "☀️" },
+  { name: "July", icon: "🏖️" },
+  { name: "August", icon: "🌻" },
+  { name: "September", icon: "🍂" },
+  { name: "October", icon: "🎃" },
+  { name: "November", icon: "🍁" },
+  { name: "December", icon: "🎄" },
+];
+
 /**
- * YearTimeline component displays a horizontal scrollable timeline of all weeks in the year.
+ * YearTimeline component displays a vertical timeline of the year.
  * Features include:
- * - Month indicators showing which months contain which weeks
- * - Visual distinction between work and rest weeks
- * - Cycle end markers with editable labels
+ * - Months displayed vertically on the left with icons
+ * - Cycles displayed on the right showing work and rest periods
+ * - Visual indication of when each cycle starts, ends, and where rest weeks fall
  * - Current week highlighting
- * - Hover tooltips with week details
+ * - Editable cycle labels
  * 
  * @param props - Component props
  * @param props.blocks - Array of calendar blocks to display
@@ -35,36 +58,36 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
     }
   }, [editingCycle]);
 
-  const monthRanges = useMemo((): MonthRange[] => {
-    const monthBlocks: MonthRange[] = [];
-    let currentMonth = startOfMonth(blocks[0].start);
-    let startIndex = 0;
-    let count = 0;
-
-    blocks.forEach((block, index) => {
-      if (!isSameMonth(block.start, currentMonth)) {
-        monthBlocks.push({
-          month: format(currentMonth, DATE_FORMATS.MONTH_YEAR),
-          startIndex,
-          width: count,
-        });
-        currentMonth = startOfMonth(block.start);
-        startIndex = index;
-        count = 1;
-      } else {
-        count++;
-      }
+  // Group blocks into cycles with their vertical positions
+  const cycles = useMemo((): CycleData[] => {
+    const cycleMap = new Map<number, Block[]>();
+    
+    blocks.forEach((block) => {
+      const cycleBlocks = cycleMap.get(block.cycleNumber) || [];
+      cycleBlocks.push(block);
+      cycleMap.set(block.cycleNumber, cycleBlocks);
     });
 
-    if (count > 0) {
-      monthBlocks.push({
-        month: format(currentMonth, DATE_FORMATS.MONTH_YEAR),
-        startIndex,
-        width: count,
-      });
-    }
+    return Array.from(cycleMap.entries()).map(([cycleNumber, weeks]) => {
+      const firstWeek = weeks[0];
+      const lastWeek = weeks[weeks.length - 1];
+      const restWeek = weeks.find(w => w.type === "rest");
 
-    return monthBlocks;
+      const yearStart = startOfYear(firstWeek.start);
+      const totalDays = 365;
+
+      const startDay = getDayOfYear(firstWeek.start);
+      const endDay = getDayOfYear(lastWeek.start) + 7; // +7 days for the week duration
+      const restDay = restWeek ? getDayOfYear(restWeek.start) : endDay;
+
+      return {
+        cycleNumber,
+        weeks,
+        startPosition: (startDay / totalDays) * 100,
+        endPosition: (endDay / totalDays) * 100,
+        restWeekPosition: (restDay / totalDays) * 100,
+      };
+    });
   }, [blocks]);
 
   const handleLabelClick = useCallback((cycleNum: number) => {
@@ -85,176 +108,180 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
   }, [handleLabelSave]);
 
   return (
-    <div className="w-full overflow-x-auto pb-4">
-      {/* Month indicators */}
-      <div className="min-w-max flex gap-1 px-4 mb-2">
-        {monthRanges.map((monthRange, monthIndex) => (
-          <div
-            key={monthIndex}
-            style={{
-              width: `${monthRange.width * DIMENSIONS.WEEK_BLOCK_WITH_GAP}px`,
-              marginLeft: monthIndex === 0 ? 0 : undefined,
-            }}
-            className="text-center"
-          >
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: monthIndex * ANIMATION_CONFIG.DELAY_MONTH_STAGGER }}
-              className="text-xs font-semibold text-gray-700 dark:text-gray-300 py-2 px-2 bg-gray-100 dark:bg-gray-800 rounded-md"
-            >
-              {monthRange.month}
-            </motion.div>
-          </div>
-        ))}
-      </div>
-
-      {/* Week blocks */}
-      <div className="min-w-max flex gap-1 p-4 pt-2 relative">
-        {blocks.map((block, index) => {
-          const isCurrentWeek = currentBlock && isSameWeek(block.start, currentBlock.start);
-          const weekLabel = format(block.start, DATE_FORMATS.MONTH_SHORT);
-          const isLastWeekOfCycle = block.weekInCycle === CYCLE_CONFIG.TOTAL_WEEKS_IN_CYCLE;
-          
-          return (
-            <div key={`${block.cycleNumber}-${block.weekInCycle}-${index}`} className="relative">
+    <div className="w-full h-full overflow-y-auto overflow-x-visible">
+      <div className="flex gap-4 md:gap-8 min-h-[800px] relative px-2">
+        {/* Left side - Months */}
+        <div className="flex-shrink-0 w-24 md:w-32">
+          <div className="sticky top-0 space-y-1">
+            {MONTHS.map((month, index) => (
               <motion.div
-                initial={{ opacity: 0, scale: ANIMATION_CONFIG.SCALE_INITIAL }}
-                animate={{ opacity: 1, scale: ANIMATION_CONFIG.SCALE_NORMAL }}
-                transition={{
-                  duration: ANIMATION_CONFIG.DURATION_NORMAL,
-                  delay: index * ANIMATION_CONFIG.DELAY_STAGGER,
-                  ease: ANIMATION_CONFIG.EASING_EXPO,
-                }}
-                whileHover={{
-                  scale: ANIMATION_CONFIG.SCALE_HOVER,
-                  y: -4,
-                  transition: { duration: ANIMATION_CONFIG.DURATION_FAST },
-                }}
-                className="relative group"
+                key={month.name}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05, duration: 0.3 }}
+                className="h-16 flex items-center gap-3 px-3 py-2 rounded-lg bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700"
               >
-                <div
-                  className={`
-                    rounded-lg transition-all duration-300 cursor-pointer
-                    ${
-                      block.type === "work"
-                        ? "bg-work-400 dark:bg-work-600"
-                        : "bg-rest-400 dark:bg-rest-600"
-                    }
-                    ${isCurrentWeek ? "ring-4 ring-gray-900 dark:ring-white shadow-xl" : "shadow-md"}
-                  `}
-                  style={{
-                    width: `${DIMENSIONS.WEEK_BLOCK_WIDTH}px`,
-                    height: `${DIMENSIONS.WEEK_BLOCK_HEIGHT}px`,
-                  }}
-                >
-                  {/* Week indicator */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-xs font-medium">
-                    <span className="text-[10px] opacity-75">W{block.weekInCycle}</span>
-                    <span className="text-[9px] opacity-60 mt-1">C{block.cycleNumber}</span>
-                  </div>
-
-                  {/* Current week indicator */}
-                  {isCurrentWeek && (
-                    <motion.div
-                      className="absolute -top-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-white rounded-full"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: ANIMATION_CONFIG.CURRENT_WEEK_SCALE }}
-                      transition={{ duration: ANIMATION_CONFIG.DURATION_SLOW, delay: ANIMATION_CONFIG.DELAY_SHORT }}
-                    />
-                  )}
+                <span className="text-2xl">{month.icon}</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {month.name}
+                  </span>
+                  <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                    2026
+                  </span>
                 </div>
-
-                {/* Hover tooltip */}
-                <motion.div
-                  className="absolute -top-12 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
-                  initial={false}
-                >
-                  <div className="flex flex-col items-center">
-                    <span className="font-semibold">{weekLabel}</span>
-                    <span className="text-[10px] opacity-75 capitalize">
-                      {block.type} Week
-                    </span>
-                  </div>
-                  {/* Arrow */}
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-white rotate-45" />
-                </motion.div>
-
-                {/* Cycle separator */}
-                {block.weekInCycle === 1 && block.cycleNumber > 1 && (
-                  <div className="absolute -left-2 top-0 bottom-0 w-[2px] bg-gray-300 dark:bg-gray-700" />
-                )}
               </motion.div>
+            ))}
+          </div>
+        </div>
 
-              {/* Cycle end marker with editable label */}
-              {isLastWeekOfCycle && (
+        {/* Right side - Cycles visualization */}
+        <div className="flex-1 relative" style={{ minHeight: "800px" }}>
+          {/* Timeline line */}
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-work-300 via-work-400 to-work-500 dark:from-work-600 dark:via-work-700 dark:to-work-800 rounded-full" />
+
+          {/* Cycles - using static positioning instead of absolute */}
+          <div className="ml-8 space-y-4">
+            {cycles.map((cycle, cycleIndex) => {
+              const isCurrentCycle = cycle.weeks.some(week => 
+                currentBlock && isSameWeek(week.start, currentBlock.start)
+              );
+              const restWeek = cycle.weeks.find(w => w.type === "rest");
+
+              return (
                 <motion.div
-                  initial={{ opacity: 0, scaleY: 0 }}
-                  animate={{ opacity: 1, scaleY: 1 }}
-                  transition={{ delay: index * ANIMATION_CONFIG.DELAY_STAGGER + ANIMATION_CONFIG.DELAY_NORMAL, duration: 0.4 }}
-                  className="absolute -right-2 top-0 flex flex-col items-center"
-                  style={{ transformOrigin: "top" }}
+                  key={cycle.cycleNumber}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: cycleIndex * 0.1, duration: 0.5 }}
+                  className="relative flex gap-3"
                 >
-                  <div 
-                    className="bg-gradient-to-b from-gray-600 to-gray-400 dark:from-gray-400 dark:to-gray-600 rounded-full shadow-lg"
-                    style={{
-                      width: `${DIMENSIONS.CYCLE_MARKER_WIDTH}px`,
-                      height: `${DIMENSIONS.CYCLE_MARKER_HEIGHT}px`,
-                    }}
-                  />
-                  
-                  <div 
-                    className="bg-gray-600 dark:bg-gray-400 rounded-full shadow-md -mt-1"
-                    style={{
-                      width: `${DIMENSIONS.CYCLE_MARKER_DOT_SIZE}px`,
-                      height: `${DIMENSIONS.CYCLE_MARKER_DOT_SIZE}px`,
-                    }}
-                  />
-                  
+                  {/* Start marker */}
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: cycleIndex * 0.1 + 0.2, type: "spring" }}
+                    className="absolute -left-[34px] top-0"
+                  >
+                    <div className="w-3 h-3 rounded-full bg-work-500 dark:bg-work-400 border-4 border-white dark:border-gray-900 shadow-lg" />
+                  </motion.div>
+
+                  {/* Compact Cycle Card */}
+                  <motion.div
+                    initial={{ scaleY: 0 }}
+                    animate={{ scaleY: 1 }}
+                    transition={{ delay: cycleIndex * 0.1 + 0.1, duration: 0.5 }}
+                    className={`
+                      w-[560px] rounded-lg overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-850 border-2 
+                      ${isCurrentCycle 
+                        ? "border-work-500 dark:border-work-400 shadow-2xl" 
+                        : "border-gray-200 dark:border-gray-700 shadow-lg"}
+                      p-4
+                    `}
+                    style={{ transformOrigin: "top" }}
+                  >
+                    {/* Cycle Header */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-work-500 to-work-600 dark:from-work-600 dark:to-work-700 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                            C{cycle.cycleNumber}
+                          </div>
+                          <div>
+                            <div className="text-sm font-bold text-gray-900 dark:text-white">
+                              Cycle {cycle.cycleNumber}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {cycle.weeks.length} weeks
+                            </div>
+                          </div>
+                        </div>
+                        {isCurrentCycle && (
+                          <div className="px-2 py-1 bg-work-500 dark:bg-work-600 text-white text-[10px] font-bold rounded-full">
+                            CURRENT
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Date Range */}
+                      <div className="space-y-2 mb-3">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-500 dark:text-gray-400">Start:</span>
+                          <span className="font-semibold text-gray-900 dark:text-white">
+                            {format(cycle.weeks[0].start, "MMM d, yyyy")}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-500 dark:text-gray-400">End:</span>
+                          <span className="font-semibold text-gray-900 dark:text-white">
+                            {format(cycle.weeks[cycle.weeks.length - 1].start, "MMM d, yyyy")}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Work/Rest Indicator */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 flex items-center gap-1">
+                          <div className="flex-1 h-2 bg-work-400 dark:bg-work-600 rounded-full" />
+                          <span className="text-[10px] text-gray-600 dark:text-gray-400">6W</span>
+                        </div>
+                        <div className="flex-1 flex items-center gap-1">
+                          <div className="flex-1 h-2 bg-rest-400 dark:bg-rest-600 rounded-full" />
+                          <span className="text-[10px] text-gray-600 dark:text-gray-400">1R</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Rest Week Badge */}
+                    {restWeek && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: cycleIndex * 0.1 + 0.4 }}
+                        className="mt-3 bg-gradient-to-r from-rest-400 to-rest-500 dark:from-rest-600 dark:to-rest-700 rounded-lg p-2 flex items-center gap-2"
+                      >
+                        <div className="w-8 h-8 bg-white/30 rounded-full flex items-center justify-center text-lg">
+                          🏖️
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-xs font-bold text-white">Rest Week</div>
+                          <div className="text-[10px] text-white/80">
+                            {format(restWeek.start, "MMM d")} - {format(new Date(restWeek.start.getTime() + 6 * 24 * 60 * 60 * 1000), "MMM d")}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+
                   {/* Editable label */}
-                  <div className="mt-2 flex flex-col items-center">
-                    {editingCycle === block.cycleNumber ? (
+                  <div className="flex items-center">
+                    {editingCycle === cycle.cycleNumber ? (
                       <input
                         ref={inputRef}
                         type="text"
-                        defaultValue={cycleLabels[block.cycleNumber] || ""}
+                        defaultValue={cycleLabels[cycle.cycleNumber] || ""}
                         placeholder="Label..."
-                        onBlur={(event) => handleLabelSave(block.cycleNumber, event.target.value)}
-                        onKeyDown={(event) => handleKeyDown(event, block.cycleNumber)}
-                        className="px-2 py-1 text-xs text-center bg-white dark:bg-gray-800 border-2 border-work-500 dark:border-work-400 rounded-md focus:outline-none focus:ring-2 focus:ring-work-500 dark:focus:ring-work-400 text-gray-900 dark:text-white"
-                        style={{ width: `${DIMENSIONS.LABEL_WIDTH}px` }}
+                        onBlur={(event) => handleLabelSave(cycle.cycleNumber, event.target.value)}
+                        onKeyDown={(event) => handleKeyDown(event, cycle.cycleNumber)}
+                        className="w-32 px-2 py-1 text-xs bg-white dark:bg-gray-800 border-2 border-work-500 dark:border-work-400 rounded-md focus:outline-none focus:ring-2 focus:ring-work-500 dark:focus:ring-work-400 text-gray-900 dark:text-white shadow-lg"
                       />
                     ) : (
                       <motion.button
-                        onClick={() => handleLabelClick(block.cycleNumber)}
-                        whileHover={{ scale: ANIMATION_CONFIG.SCALE_HOVER }}
-                        whileTap={{ scale: ANIMATION_CONFIG.SCALE_TAP }}
-                        className="px-2 py-1 text-xs text-center bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors cursor-pointer text-gray-700 dark:text-gray-300 font-medium border border-gray-300 dark:border-gray-600"
-                        style={{ width: `${DIMENSIONS.LABEL_WIDTH}px` }}
+                        onClick={() => handleLabelClick(cycle.cycleNumber)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="w-32 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors cursor-pointer text-gray-700 dark:text-gray-300 font-medium border border-gray-300 dark:border-gray-600 shadow-md truncate"
                       >
-                        {cycleLabels[block.cycleNumber] || TEXT.CYCLE_LABEL_PLACEHOLDER}
+                        {cycleLabels[cycle.cycleNumber] || "Add label"}
                       </motion.button>
                     )}
-                    <span className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
-                      Cycle {block.cycleNumber}
-                    </span>
                   </div>
                 </motion.div>
-              )}
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        </div>
       </div>
-
-      <motion.div
-        className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: ANIMATION_CONFIG.DELAY_LONG }}
-      >
-        {TEXT.SCROLL_INDICATOR}
-      </motion.div>
     </div>
   );
 }
-

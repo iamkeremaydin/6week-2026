@@ -2,11 +2,16 @@
 
 import { CalendarView } from "@/components/calendar/CalendarView";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SunIcon, MoonIcon } from "@/components/icons";
 
 export default function Home() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Set dark mode as default on initial load
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+  }, []);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -14,7 +19,7 @@ export default function Home() {
   };
 
   return (
-    <>
+    <div className="min-h-screen">
       {/* Dark mode toggle */}
       <motion.button
         onClick={toggleDarkMode}
@@ -39,7 +44,7 @@ export default function Home() {
 
       {/* Info section */}
       <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 py-16 md:px-8">
+        <div className="max-w-7xl mx-auto px-4 py-12 md:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -151,9 +156,9 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="mt-16 text-center"
+            className="mt-12 text-center"
           >
-            <h3 className="text-2xl font-bold mb-8">Features</h3>
+            <h3 className="text-2xl font-bold mb-6">Features</h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="p-4">
                 <div className="text-3xl mb-2">🎨</div>
@@ -187,7 +192,7 @@ export default function Home() {
           </motion.div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
