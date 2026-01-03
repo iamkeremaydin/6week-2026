@@ -281,9 +281,30 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                     `}
                     style={{ transformOrigin: "top" }}
                   >
-                    {/* Header with editable cycle name */}
+                    {/* Header - Dates first (primary), Cycle name second (secondary) */}
                     <div className="mb-4">
-                      <div className="flex items-start justify-between mb-3">
+                      {/* Date Range - Balanced visual hierarchy */}
+                      <div className="mb-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wide">
+                            {t('start')}
+                          </span>
+                          <span className="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200">
+                            {formatFullDate(cycle.weeks[0].start, locale, true)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wide">
+                            {t('end')}
+                          </span>
+                          <span className="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200">
+                            {formatFullDate(new Date(cycle.weeks[cycle.weeks.length - 1].end.getTime() - 1), locale, true)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Cycle name - Balanced visual hierarchy */}
+                      <div className="flex items-start justify-between">
                         <div className="flex-1 mr-2 sm:mr-3 min-w-0">
                           {isEditing ? (
                             <input
@@ -294,7 +315,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                               onKeyDown={(e) => handleKeyDown(e, cycle.cycleNumber)}
                               placeholder={t('cyclePlaceholder')}
                               autoFocus
-                              className="w-full text-lg sm:text-lg font-bold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 border-2 border-work-500 dark:border-work-400 rounded-lg px-4 py-3 sm:px-3 sm:py-2 focus:outline-none focus:ring-2 focus:ring-work-400 dark:focus:ring-work-500 focus:border-transparent"
+                              className="w-full text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 border-2 border-work-500 dark:border-work-400 rounded-lg px-3 py-2 sm:px-2 sm:py-1.5 focus:outline-none focus:ring-2 focus:ring-work-400 dark:focus:ring-work-500 focus:border-transparent"
                             />
                           ) : (
                             <button
@@ -303,13 +324,13 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                               title={t('clickToEditCycleName')}
                             >
                               <div className="flex items-center gap-1 min-w-0 overflow-hidden">
-                                <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
+                                <span className="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200 truncate">
                                   {cycleName || `${tCalendar('cycle')} ${cycle.cycleNumber}`}
                                 </span>
                                 {/* Subtle edit indicator - only shown for default (unedited) cycle names */}
                                 {!cycleName && (
                                   <svg
-                                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 dark:text-gray-500 opacity-60 flex-shrink-0 ml-0.5"
+                                    className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 dark:text-gray-500 opacity-60 flex-shrink-0 ml-0.5"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -325,7 +346,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                                 )}
                                 {/* Hover edit icon - shown on hover for all cycles */}
                                 <svg
-                                  className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
                                   fill="none"
                                   stroke="currentColor"
                                   viewBox="0 0 24 24"
@@ -340,7 +361,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                               </div>
                             </button>
                           )}
-                          <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                             {cycle.weeks.length} {tCalendar('weeks')}
                           </div>
                         </div>
@@ -349,22 +370,6 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                             {t('current')}
                           </div>
                         )}
-                      </div>
-
-                      {/* Date Range */}
-                      <div className="space-y-1 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                        <div className="flex items-center justify-between">
-                          <span>{t('start')}</span>
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            {formatFullDate(cycle.weeks[0].start, locale, true)}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span>{t('end')}</span>
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            {formatFullDate(new Date(cycle.weeks[cycle.weeks.length - 1].end.getTime() - 1), locale, true)}
-                          </span>
-                        </div>
                       </div>
                     </div>
 
