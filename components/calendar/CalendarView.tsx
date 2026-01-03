@@ -128,7 +128,7 @@ export function CalendarView({
         {/* Main content area */}
         <div className="grid lg:grid-cols-[1fr_280px] xl:grid-cols-[1fr_320px] gap-3 sm:gap-4">
           {/* Calendar views */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl p-4 sm:p-3 md:p-4 shadow-lg border border-gray-200 dark:border-gray-800 min-h-[500px] lg:min-h-[700px] overflow-x-hidden">
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-2 sm:p-3 md:p-4 shadow-lg border border-gray-200 dark:border-gray-800 min-h-[500px] lg:min-h-[700px] overflow-x-hidden">
             <Suspense fallback={
               <div className="flex items-center justify-center h-[500px]">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-work-500"></div>

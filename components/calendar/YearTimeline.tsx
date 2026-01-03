@@ -164,9 +164,9 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
 
   return (
     <div className="w-full h-full overflow-y-auto overflow-x-hidden">
-      <div className="flex gap-4 sm:gap-6 md:gap-8 min-h-[800px] relative px-2 sm:px-4">
+      <div className="flex gap-2 sm:gap-6 md:gap-8 min-h-[800px] relative px-1 sm:px-4 max-w-full">
         {/* Left side - Months (no emojis, cleaner design) */}
-        <div className="flex-shrink-0 w-20 sm:w-24 border-r border-gray-200 dark:border-gray-700">
+        <div className="flex-shrink-0 w-16 sm:w-24 border-r border-gray-200 dark:border-gray-700">
           <div className="sticky top-0 space-y-2 pr-3">
             {MONTHS.map((month, index) => {
               const hasCycle = monthToCycleMap.has(index);
@@ -186,10 +186,10 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                       : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'}
                   `}
                 >
-                  <span className="text-[11px] sm:text-xs font-medium text-gray-700 dark:text-gray-300">
+                  <span className="text-[10px] sm:text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
                     {month}
                   </span>
-                  <span className="text-[10px] text-gray-500 dark:text-gray-500">
+                  <span className="text-[9px] sm:text-[10px] text-gray-500 dark:text-gray-500">
                     2026
                   </span>
                 </m.div>
@@ -199,12 +199,12 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
         </div>
 
         {/* Right side - Cycles */}
-        <div className="flex-1 relative" style={{ minHeight: "800px" }}>
+        <div className="flex-1 relative min-w-0" style={{ minHeight: "800px" }}>
           {/* Timeline line */}
           <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-700" />
 
           {/* Cycles with increased spacing */}
-          <div className="ml-6 sm:ml-8 space-y-8 sm:space-y-6">
+          <div className="ml-4 sm:ml-8 space-y-8 sm:space-y-6">
             {cycles.map((cycle, cycleIndex) => {
               const isCurrentCycle = cycle.weeks.some(week => 
                 currentBlock && isSameWeek(week.start, currentBlock.start)
@@ -247,21 +247,21 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                     animate={{ scaleY: 1 }}
                     transition={{ delay: cycleIndex * 0.1 + 0.1, duration: 0.5 }}
                     className={`
-                      w-full sm:w-[420px] md:w-[480px] rounded-xl bg-white dark:bg-gray-900 border 
+                      w-full max-w-full sm:w-[420px] md:w-[480px] rounded-xl bg-white dark:bg-gray-900 border 
                       ${isCurrentCycle 
                         ? "border-work-500 dark:border-work-400 shadow-md" 
                         : isHovered
                         ? "border-work-400 dark:border-work-500 shadow-lg bg-work-50/50 dark:bg-work-950/20"
                         : "border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md"}
                       ${cycleIndex === 0 && showNamingHint ? "ring-2 ring-work-400 dark:ring-work-500 ring-offset-2" : ""}
-                      p-5 sm:p-4 transition-all duration-200
+                      p-4 sm:p-4 md:p-5 transition-all duration-200
                     `}
                     style={{ transformOrigin: "top" }}
                   >
                     {/* Header with editable cycle name */}
                     <div className="mb-4">
                       <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1 mr-3">
+                        <div className="flex-1 mr-2 sm:mr-3 min-w-0">
                           {isEditing ? (
                             <input
                               type="text"
@@ -271,16 +271,16 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                               onKeyDown={(e) => handleKeyDown(e, cycle.cycleNumber)}
                               placeholder={t('cyclePlaceholder')}
                               autoFocus
-                              className="w-full text-base sm:text-lg font-bold text-gray-900 dark:text-white bg-transparent border-b-2 border-work-500 dark:border-work-400 focus:outline-none pb-1"
+                              className="w-full text-lg sm:text-lg font-bold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 border-2 border-work-500 dark:border-work-400 rounded-lg px-4 py-3 sm:px-3 sm:py-2 focus:outline-none focus:ring-2 focus:ring-work-400 dark:focus:ring-work-500 focus:border-transparent"
                             />
                           ) : (
                             <button
                               onClick={() => handleCycleNameClick(cycle.cycleNumber)}
-                              className="group w-full text-left"
+                              className="group w-full text-left min-w-0"
                               title={t('clickToEditCycleName')}
                             >
-                              <div className="flex items-center gap-2">
-                                <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate flex-1 min-w-0">
                                   {cycleName || `${tCalendar('cycle')} ${cycle.cycleNumber}`}
                                 </span>
                                 {/* Subtle edit indicator - only shown for default (unedited) cycle names */}
