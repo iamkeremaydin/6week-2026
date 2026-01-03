@@ -302,14 +302,14 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                               className="group w-full text-left min-w-0"
                               title={t('clickToEditCycleName')}
                             >
-                              <div className="flex items-center gap-1 min-w-0">
-                                <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate flex-1 min-w-0">
+                              <div className="flex items-center gap-1 min-w-0 overflow-hidden">
+                                <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
                                   {cycleName || `${tCalendar('cycle')} ${cycle.cycleNumber}`}
                                 </span>
                                 {/* Subtle edit indicator - only shown for default (unedited) cycle names */}
                                 {!cycleName && (
                                   <svg
-                                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 dark:text-gray-500 opacity-60 flex-shrink-0"
+                                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 dark:text-gray-500 opacity-60 flex-shrink-0 ml-0.5"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
