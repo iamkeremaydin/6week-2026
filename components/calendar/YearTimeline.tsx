@@ -205,6 +205,29 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
 
           {/* Cycles with increased spacing */}
           <div className="ml-4 sm:ml-8 space-y-8 sm:space-y-6">
+            {/* Cycle Naming Onboarding Hint - Mobile Only - Positioned at top */}
+            {showNamingHint && isMobile && cycles.length > 0 && (
+              <m.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="mb-2 bg-work-50 dark:bg-work-950/30 border border-work-200 dark:border-work-800 rounded-lg p-4 flex items-start gap-3"
+              >
+                <div className="flex-shrink-0 text-2xl">💡</div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                    {t('cycleNamingHintMobile')}
+                  </p>
+                  <button
+                    onClick={handleDismissHint}
+                    className="text-xs text-work-600 dark:text-work-400 font-medium hover:underline"
+                  >
+                    {t('gotIt')}
+                  </button>
+                </div>
+              </m.div>
+            )}
+
             {cycles.map((cycle, cycleIndex) => {
               const isCurrentCycle = cycle.weeks.some(week => 
                 currentBlock && isSameWeek(week.start, currentBlock.start)
@@ -379,29 +402,6 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                 </m.div>
               );
             })}
-
-            {/* Cycle Naming Onboarding Hint - Mobile Only */}
-            {showNamingHint && isMobile && cycles.length > 0 && (
-              <m.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="mt-4 bg-work-50 dark:bg-work-950/30 border border-work-200 dark:border-work-800 rounded-lg p-4 flex items-start gap-3"
-              >
-                <div className="flex-shrink-0 text-2xl">💡</div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                    {t('cycleNamingHintMobile')}
-                  </p>
-                  <button
-                    onClick={handleDismissHint}
-                    className="text-xs text-work-600 dark:text-work-400 font-medium hover:underline"
-                  >
-                    {t('gotIt')}
-                  </button>
-                </div>
-              </m.div>
-            )}
           </div>
         </div>
       </div>
