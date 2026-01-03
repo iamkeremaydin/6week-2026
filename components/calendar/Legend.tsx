@@ -2,6 +2,7 @@
 
 import { m } from "motion/react";
 import { useTranslations } from 'next-intl';
+import { useCycleNaming } from "@/lib/context/CycleNamingContext";
 import type { FilterOptions, BlockType } from "@/lib/calendar/types";
 
 interface LegendProps {
@@ -22,6 +23,7 @@ export function Legend({
   onFilterChange,
 }: LegendProps) {
   const t = useTranslations('legend');
+  const { getCycleName } = useCycleNaming();
 
   const blockTypes: Array<{ value: BlockType | "all"; label: string }> = [
     { value: "all", label: t('allWeeks') },
@@ -145,11 +147,14 @@ export function Legend({
             >
               <option value="">{t('selectCycle')}</option>
               {Array.from({ length: totalCycles }, (_, i) => i + 1).map(
-                (cycle) => (
-                  <option key={cycle} value={cycle}>
-                    {t('cycleNumber', { number: cycle })}
-                  </option>
-                )
+                (cycle) => {
+                  const cycleName = getCycleName(cycle);
+                  return (
+                    <option key={cycle} value={cycle}>
+                      {cycleName || t('cycleNumber', { number: cycle })}
+                    </option>
+                  );
+                }
               )}
             </select>
           </div>

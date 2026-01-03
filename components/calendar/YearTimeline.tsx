@@ -1,11 +1,12 @@
 "use client";
 
 import { m } from "motion/react";
-import { isSameWeek, getDayOfYear } from "date-fns";
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { isSameWeek, getMonth, getYear } from "date-fns";
+import { useState, useMemo, useRef } from "react";
 import { useTranslations, useLocale } from 'next-intl';
 import { formatFullDate, formatDate, type Locale } from "@/lib/i18n/dateFormats";
-import type { Block, CycleLabels } from "@/lib/calendar/types";
+import { useCycleNaming } from "@/lib/context/CycleNamingContext";
+import type { Block } from "@/lib/calendar/types";
 
 interface YearTimelineProps {
   blocks: Block[];
@@ -15,49 +16,40 @@ interface YearTimelineProps {
 interface CycleData {
   cycleNumber: number;
   weeks: Block[];
-  startPosition: number;
-  endPosition: number;
-  restWeekPosition: number;
 }
 
-const MONTH_ICONS = ["❄️", "💝", "🌸", "🌷", "🌺", "☀️", "🏖️", "🌻", "🍂", "🎃", "🍁", "🎄"];
-
 /**
- * Vertical timeline view showing months and cycles with editable labels.
- * Displays month indicators on the left and cycle cards on the right showing work/rest periods.
+ * Vertical timeline view with month indicators and editable cycle names.
+ * User-defined cycle names are stored globally and propagate to all components.
  */
 export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
-  const [cycleLabels, setCycleLabels] = useState<CycleLabels>({});
   const [editingCycle, setEditingCycle] = useState<number | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [editValue, setEditValue] = useState<string>("");
+  const [hoveredMonth, setHoveredMonth] = useState<number | null>(null);
+  const cycleRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const { getCycleName, setCycleName } = useCycleNaming();
   const t = useTranslations('timeline');
   const tCalendar = useTranslations('calendar');
   const tMonths = useTranslations('months');
   const locale = useLocale() as Locale;
 
-  // Month names from translations
+  // Month names from translations (no emojis)
   const MONTHS = useMemo(() => [
-    { name: tMonths('january'), icon: MONTH_ICONS[0] },
-    { name: tMonths('february'), icon: MONTH_ICONS[1] },
-    { name: tMonths('march'), icon: MONTH_ICONS[2] },
-    { name: tMonths('april'), icon: MONTH_ICONS[3] },
-    { name: tMonths('may'), icon: MONTH_ICONS[4] },
-    { name: tMonths('june'), icon: MONTH_ICONS[5] },
-    { name: tMonths('july'), icon: MONTH_ICONS[6] },
-    { name: tMonths('august'), icon: MONTH_ICONS[7] },
-    { name: tMonths('september'), icon: MONTH_ICONS[8] },
-    { name: tMonths('october'), icon: MONTH_ICONS[9] },
-    { name: tMonths('november'), icon: MONTH_ICONS[10] },
-    { name: tMonths('december'), icon: MONTH_ICONS[11] },
+    tMonths('january'),
+    tMonths('february'),
+    tMonths('march'),
+    tMonths('april'),
+    tMonths('may'),
+    tMonths('june'),
+    tMonths('july'),
+    tMonths('august'),
+    tMonths('september'),
+    tMonths('october'),
+    tMonths('november'),
+    tMonths('december'),
   ], [tMonths]);
 
-  useEffect(() => {
-    if (editingCycle !== null && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [editingCycle]);
-
-  // Group blocks into cycles with their vertical positions
+  // Group blocks into cycles
   const cycles = useMemo((): CycleData[] => {
     const cycleMap = new Map<number, Block[]>();
     
@@ -67,213 +59,284 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
       cycleMap.set(block.cycleNumber, cycleBlocks);
     });
 
-    return Array.from(cycleMap.entries()).map(([cycleNumber, weeks]) => {
-      const firstWeek = weeks[0];
-      const lastWeek = weeks[weeks.length - 1];
-      const restWeek = weeks.find(w => w.type === "rest");
-
-      const totalDays = 365;
-
-      const startDay = getDayOfYear(firstWeek.start);
-      const endDay = getDayOfYear(lastWeek.start) + 7; // +7 days for the week duration
-      const restDay = restWeek ? getDayOfYear(restWeek.start) : endDay;
-
-      return {
-        cycleNumber,
-        weeks,
-        startPosition: (startDay / totalDays) * 100,
-        endPosition: (endDay / totalDays) * 100,
-        restWeekPosition: (restDay / totalDays) * 100,
-      };
-    });
+    return Array.from(cycleMap.entries()).map(([cycleNumber, weeks]) => ({
+      cycleNumber,
+      weeks,
+    }));
   }, [blocks]);
 
-  const handleLabelClick = useCallback((cycleNum: number) => {
-    setEditingCycle(cycleNum);
-  }, []);
+  // Map months (0-11) to cycle numbers that contain them
+  // For months with multiple cycles, prefer the cycle that starts in that month
+  const monthToCycleMap = useMemo(() => {
+    const map = new Map<number, number>();
+    const monthWeekCounts = new Map<number, Map<number, number>>(); // month -> cycle -> week count
+    
+    cycles.forEach((cycle) => {
+      cycle.weeks.forEach((week) => {
+        const month = getMonth(week.start);
+        if (!monthWeekCounts.has(month)) {
+          monthWeekCounts.set(month, new Map());
+        }
+        const cycleCounts = monthWeekCounts.get(month)!;
+        cycleCounts.set(cycle.cycleNumber, (cycleCounts.get(cycle.cycleNumber) || 0) + 1);
+      });
+    });
 
-  const handleLabelSave = useCallback((cycleNum: number, value: string) => {
-    setCycleLabels(prev => ({ ...prev, [cycleNum]: value }));
+    // For each month, choose the cycle with most weeks, or the one that starts in that month
+    monthWeekCounts.forEach((cycleCounts, month) => {
+      let bestCycle = -1;
+      let maxWeeks = 0;
+      const startCycle = cycles.find(c => getMonth(c.weeks[0].start) === month)?.cycleNumber;
+      
+      cycleCounts.forEach((weeks, cycleNum) => {
+        if (weeks > maxWeeks || (weeks === maxWeeks && cycleNum === startCycle)) {
+          maxWeeks = weeks;
+          bestCycle = cycleNum;
+        }
+      });
+      
+      if (bestCycle !== -1) {
+        map.set(month, bestCycle);
+      }
+    });
+    
+    return map;
+  }, [cycles]);
+
+  // Handle month click - scroll to corresponding cycle
+  const handleMonthClick = (monthIndex: number) => {
+    const cycleNumber = monthToCycleMap.get(monthIndex);
+    if (cycleNumber) {
+      const cycleElement = cycleRefs.current.get(cycleNumber);
+      if (cycleElement) {
+        cycleElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Add a brief highlight effect
+        cycleElement.classList.add('ring-2', 'ring-work-500', 'ring-offset-2');
+        setTimeout(() => {
+          cycleElement.classList.remove('ring-2', 'ring-work-500', 'ring-offset-2');
+        }, 1000);
+      }
+    }
+  };
+
+  const handleCycleNameClick = (cycleNumber: number) => {
+    const currentName = getCycleName(cycleNumber) || "";
+    setEditValue(currentName);
+    setEditingCycle(cycleNumber);
+  };
+
+  const handleCycleNameSave = (cycleNumber: number) => {
+    if (editValue.trim()) {
+      setCycleName(cycleNumber, editValue.trim());
+    }
     setEditingCycle(null);
-  }, []);
+    setEditValue("");
+  };
 
-  const handleKeyDown = useCallback((event: React.KeyboardEvent, cycleNum: number) => {
+  const handleKeyDown = (event: React.KeyboardEvent, cycleNumber: number) => {
     if (event.key === "Enter") {
-      handleLabelSave(cycleNum, (event.target as HTMLInputElement).value);
+      handleCycleNameSave(cycleNumber);
     } else if (event.key === "Escape") {
       setEditingCycle(null);
+      setEditValue("");
     }
-  }, [handleLabelSave]);
+  };
 
   return (
     <div className="w-full h-full overflow-y-auto overflow-x-hidden">
-      <div className="flex gap-2 sm:gap-4 md:gap-8 min-h-[800px] relative px-2 sm:px-4">
-        {/* Left side - Months */}
-        <div className="flex-shrink-0 w-14 sm:w-20 md:w-24 lg:w-32">
-          <div className="sticky top-0 space-y-1">
-            {MONTHS.map((month, index) => (
-              <m.div
-                key={month.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05, duration: 0.3 }}
-                className="h-16 flex items-center gap-0.5 sm:gap-2 md:gap-3 px-1 sm:px-2 md:px-3 py-2 rounded-lg bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700 overflow-hidden"
-              >
-                <span className="text-base sm:text-xl md:text-2xl flex-shrink-0">{month.icon}</span>
-                <div className="flex flex-col min-w-0 flex-1">
-                  <span className="text-[10px] sm:text-xs md:text-sm font-semibold text-gray-900 dark:text-white truncate">
-                    {month.name}
+      <div className="flex gap-4 sm:gap-6 md:gap-8 min-h-[800px] relative px-2 sm:px-4">
+        {/* Left side - Months (no emojis, cleaner design) */}
+        <div className="flex-shrink-0 w-20 sm:w-24 border-r border-gray-200 dark:border-gray-700">
+          <div className="sticky top-0 space-y-2 pr-3">
+            {MONTHS.map((month, index) => {
+              const hasCycle = monthToCycleMap.has(index);
+              return (
+                <m.div
+                  key={month}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05, duration: 0.3 }}
+                  onClick={() => hasCycle && handleMonthClick(index)}
+                  onMouseEnter={() => hasCycle && setHoveredMonth(index)}
+                  onMouseLeave={() => setHoveredMonth(null)}
+                  className={`
+                    h-12 flex flex-col justify-center py-2 rounded transition-colors
+                    ${hasCycle 
+                      ? 'cursor-pointer hover:bg-work-50 dark:hover:bg-work-950/30 hover:border-l-2 hover:border-work-500 dark:hover:border-work-400' 
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'}
+                  `}
+                >
+                  <span className="text-[11px] sm:text-xs font-medium text-gray-700 dark:text-gray-300">
+                    {month}
                   </span>
-                  <span className="text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 hidden sm:inline">
+                  <span className="text-[10px] text-gray-500 dark:text-gray-500">
                     2026
                   </span>
-                </div>
-              </m.div>
-            ))}
+                </m.div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Right side - Cycles visualization */}
+        {/* Right side - Cycles */}
         <div className="flex-1 relative" style={{ minHeight: "800px" }}>
           {/* Timeline line */}
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-work-300 via-work-400 to-work-500 dark:from-work-600 dark:via-work-700 dark:to-work-800 rounded-full" />
+          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-700" />
 
-          {/* Cycles - using static positioning instead of absolute */}
-          <div className="ml-4 sm:ml-6 md:ml-8 space-y-4">
+          {/* Cycles with increased spacing */}
+          <div className="ml-6 sm:ml-8 space-y-6 sm:space-y-8">
             {cycles.map((cycle, cycleIndex) => {
               const isCurrentCycle = cycle.weeks.some(week => 
                 currentBlock && isSameWeek(week.start, currentBlock.start)
               );
               const restWeek = cycle.weeks.find(w => w.type === "rest");
+              const cycleName = getCycleName(cycle.cycleNumber);
+              const isEditing = editingCycle === cycle.cycleNumber;
+
+              const isHovered = Array.from(monthToCycleMap.entries())
+                .some(([month, cycleNum]) => cycleNum === cycle.cycleNumber && hoveredMonth === month);
 
               return (
                 <m.div
                   key={cycle.cycleNumber}
+                  ref={(el) => {
+                    if (el) {
+                      cycleRefs.current.set(cycle.cycleNumber, el);
+                    } else {
+                      cycleRefs.current.delete(cycle.cycleNumber);
+                    }
+                  }}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: cycleIndex * 0.1, duration: 0.5 }}
-                  className="relative flex flex-col sm:flex-row gap-2 sm:gap-3"
+                  className="relative"
                 >
-                  {/* Start marker */}
+                  {/* Start marker on timeline */}
                   <m.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: cycleIndex * 0.1 + 0.2, type: "spring" }}
-                    className="absolute -left-[34px] top-0"
+                    className="absolute -left-[27px] top-4"
                   >
-                    <div className="w-3 h-3 rounded-full bg-work-500 dark:bg-work-400 border-4 border-white dark:border-gray-900 shadow-lg" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-work-500 dark:bg-work-400 border-2 border-white dark:border-gray-900 shadow" />
                   </m.div>
 
-                  {/* Compact Cycle Card */}
+                  {/* Cycle Card - cleaner, less dense */}
                   <m.div
                     initial={{ scaleY: 0 }}
                     animate={{ scaleY: 1 }}
                     transition={{ delay: cycleIndex * 0.1 + 0.1, duration: 0.5 }}
                     className={`
-                      w-full sm:w-[480px] md:w-[560px] rounded-lg overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-850 border-2 
+                      w-full sm:w-[420px] md:w-[480px] rounded-xl bg-white dark:bg-gray-900 border 
                       ${isCurrentCycle 
-                        ? "border-work-500 dark:border-work-400 shadow-2xl" 
-                        : "border-gray-200 dark:border-gray-700 shadow-lg"}
-                      p-3 sm:p-4
+                        ? "border-work-500 dark:border-work-400 shadow-md" 
+                        : isHovered
+                        ? "border-work-400 dark:border-work-500 shadow-lg bg-work-50/50 dark:bg-work-950/20"
+                        : "border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md"}
+                      p-4 sm:p-5 transition-all duration-200
                     `}
                     style={{ transformOrigin: "top" }}
                   >
-                    {/* Cycle Header */}
-                    <div>
-                      <div className="flex items-center justify-between mb-2 sm:mb-3">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-work-500 to-work-600 dark:from-work-600 dark:to-work-700 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-md">
-                            C{cycle.cycleNumber}
-                          </div>
-                          <div>
-                            <div className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
-                              {tCalendar('cycle')} {cycle.cycleNumber}
-                            </div>
-                            <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
-                              {cycle.weeks.length} {tCalendar('weeks')}
-                            </div>
+                    {/* Header with editable cycle name */}
+                    <div className="mb-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1 mr-3">
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              onBlur={() => handleCycleNameSave(cycle.cycleNumber)}
+                              onKeyDown={(e) => handleKeyDown(e, cycle.cycleNumber)}
+                              placeholder={t('cyclePlaceholder')}
+                              autoFocus
+                              className="w-full text-sm sm:text-base font-bold text-gray-900 dark:text-white bg-transparent border-b-2 border-work-500 dark:border-work-400 focus:outline-none pb-1"
+                            />
+                          ) : (
+                            <button
+                              onClick={() => handleCycleNameClick(cycle.cycleNumber)}
+                              className="group w-full text-left"
+                              title={t('clickToEditCycleName')}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
+                                  {cycleName || `${tCalendar('cycle')} ${cycle.cycleNumber}`}
+                                </span>
+                                <svg
+                                  className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                  />
+                                </svg>
+                              </div>
+                            </button>
+                          )}
+                          <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {cycle.weeks.length} {tCalendar('weeks')}
                           </div>
                         </div>
                         {isCurrentCycle && (
-                          <div className="px-2 py-1 bg-work-500 dark:bg-work-600 text-white text-[10px] font-bold rounded-full">
+                          <div className="px-2 py-0.5 bg-work-500 dark:bg-work-600 text-white text-[10px] font-bold rounded-full whitespace-nowrap">
                             {t('current')}
                           </div>
                         )}
                       </div>
 
                       {/* Date Range */}
-                      <div className="space-y-1 sm:space-y-2 mb-2 sm:mb-3">
-                        <div className="flex items-center justify-between text-[10px] sm:text-xs">
-                          <span className="text-gray-500 dark:text-gray-400">{t('start')}</span>
-                          <span className="font-semibold text-gray-900 dark:text-white">
+                      <div className="space-y-1 text-[11px] text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center justify-between">
+                          <span>{t('start')}</span>
+                          <span className="font-medium text-gray-900 dark:text-white">
                             {formatFullDate(cycle.weeks[0].start, locale, true)}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between text-[10px] sm:text-xs">
-                          <span className="text-gray-500 dark:text-gray-400">{t('end')}</span>
-                          <span className="font-semibold text-gray-900 dark:text-white">
-                            {formatFullDate(cycle.weeks[cycle.weeks.length - 1].start, locale, true)}
+                        <div className="flex items-center justify-between">
+                          <span>{t('end')}</span>
+                          <span className="font-medium text-gray-900 dark:text-white">
+                            {formatFullDate(new Date(cycle.weeks[cycle.weeks.length - 1].end.getTime() - 1), locale, true)}
                           </span>
-                        </div>
-                      </div>
-
-                      {/* Work/Rest Indicator */}
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 flex items-center gap-1">
-                          <div className="flex-1 h-2 bg-work-400 dark:bg-work-600 rounded-full" />
-                          <span className="text-[10px] text-gray-600 dark:text-gray-400">{t('workAbbrev')}</span>
-                        </div>
-                        <div className="flex-1 flex items-center gap-1">
-                          <div className="flex-1 h-2 bg-rest-400 dark:bg-rest-600 rounded-full" />
-                          <span className="text-[10px] text-gray-600 dark:text-gray-400">{t('restAbbrev')}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Rest Week Badge */}
+                    {/* Progress bar - simplified */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="flex-1 flex items-center gap-1.5">
+                        <div className="flex-1 h-1.5 bg-work-400 dark:bg-work-600 rounded-full" />
+                        <span className="text-[10px] text-gray-600 dark:text-gray-400">{t('workAbbrev')}</span>
+                      </div>
+                      <div className="flex-1 flex items-center gap-1.5">
+                        <div className="flex-1 h-1.5 bg-rest-400 dark:bg-rest-600 rounded-full" />
+                        <span className="text-[10px] text-gray-600 dark:text-gray-400">{t('restAbbrev')}</span>
+                      </div>
+                    </div>
+
+                    {/* Rest Week Badge (no emoji) */}
                     {restWeek && (
                       <m.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: cycleIndex * 0.1 + 0.4 }}
-                        className="mt-2 sm:mt-3 bg-gradient-to-r from-rest-400 to-rest-500 dark:from-rest-600 dark:to-rest-700 rounded-lg p-2 flex items-center gap-2"
+                        className="bg-rest-100 dark:bg-rest-900/30 border border-rest-300 dark:border-rest-700 rounded-lg p-2.5 flex items-center justify-between"
                       >
-                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/30 rounded-full flex items-center justify-center text-base sm:text-lg">
-                          🏖️
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-[10px] sm:text-xs font-bold text-white">{t('restWeek')}</div>
-                          <div className="text-[9px] sm:text-[10px] text-white/80">
-                            {formatDate(restWeek.start, locale === 'tr' ? 'd MMM' : 'MMM d', locale)} - {formatDate(new Date(restWeek.start.getTime() + 6 * 24 * 60 * 60 * 1000), locale === 'tr' ? 'd MMM' : 'MMM d', locale)}
+                        <div>
+                          <div className="text-[10px] sm:text-xs font-semibold text-rest-700 dark:text-rest-400">
+                            {t('restWeek')}
+                          </div>
+                          <div className="text-[10px] text-rest-600 dark:text-rest-500 mt-0.5">
+                            {formatDate(restWeek.start, locale === 'tr' ? 'd MMM' : 'MMM d', locale)} - {formatDate(new Date(restWeek.end.getTime() - 1), locale === 'tr' ? 'd MMM' : 'MMM d', locale)}
                           </div>
                         </div>
                       </m.div>
                     )}
                   </m.div>
-
-                  {/* Editable label - hidden on mobile, visible on sm and up */}
-                  <div className="hidden sm:flex items-center">
-                    {editingCycle === cycle.cycleNumber ? (
-                      <input
-                        ref={inputRef}
-                        type="text"
-                        defaultValue={cycleLabels[cycle.cycleNumber] || ""}
-                        placeholder={t('labelPlaceholder')}
-                        onBlur={(event) => handleLabelSave(cycle.cycleNumber, event.target.value)}
-                        onKeyDown={(event) => handleKeyDown(event, cycle.cycleNumber)}
-                        className="w-24 sm:w-32 px-2 py-1 text-xs bg-white dark:bg-gray-800 border-2 border-work-500 dark:border-work-400 rounded-md focus:outline-none focus:ring-2 focus:ring-work-500 dark:focus:ring-work-400 text-gray-900 dark:text-white shadow-lg"
-                      />
-                    ) : (
-                      <m.button
-                        onClick={() => handleLabelClick(cycle.cycleNumber)}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="w-24 sm:w-32 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors cursor-pointer text-gray-700 dark:text-gray-300 font-medium border border-gray-300 dark:border-gray-600 shadow-md truncate"
-                      >
-                        {cycleLabels[cycle.cycleNumber] || t('addLabel')}
-                      </m.button>
-                    )}
-                  </div>
                 </m.div>
               );
             })}

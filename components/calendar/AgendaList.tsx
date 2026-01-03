@@ -4,6 +4,7 @@ import { m, useInView } from "motion/react";
 import { useRef, useState } from "react";
 import { useTranslations, useLocale } from 'next-intl';
 import { formatFullDateWithWeekday, formatDateRange, type Locale } from "@/lib/i18n/dateFormats";
+import { useCycleNaming } from "@/lib/context/CycleNamingContext";
 import type { Block } from "@/lib/calendar/types";
 
 interface AgendaListProps {
@@ -24,13 +25,17 @@ function AgendaItem({
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   const t = useTranslations('agenda');
+  const tCalendar = useTranslations('calendar');
   const locale = useLocale() as Locale;
+  const { getCycleName } = useCycleNaming();
 
   const weekRange = formatDateRange(
     block.start,
     new Date(block.end.getTime() - 1),
     locale
   );
+
+  const cycleName = getCycleName(block.cycleNumber);
 
   return (
     <m.div
@@ -93,7 +98,16 @@ function AgendaItem({
             </div>
 
             <h3 className="text-base sm:text-lg font-semibold mb-1 text-gray-900 dark:text-white">
-              {t('weekOfCycle', { week: block.weekInCycle, cycle: block.cycleNumber })}
+              {(() => {
+                const cycleName = getCycleName(block.cycleNumber);
+                const displayCycleName = cycleName || `${tCalendar('cycle')} ${block.cycleNumber}`;
+                // Construct string with user-defined cycle name
+                if (locale === 'tr') {
+                  return `${displayCycleName}. Döngünün ${block.weekInCycle}. Haftası`;
+                } else {
+                  return `Week ${block.weekInCycle} of ${displayCycleName}`;
+                }
+              })()}
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               {weekRange}
@@ -154,7 +168,9 @@ function AgendaItem({
                 <span className="font-medium text-gray-500 dark:text-gray-400">
                   {t('cycle')}
                 </span>
-                <p className="mt-1 font-semibold text-gray-900 dark:text-white">#{block.cycleNumber}</p>
+                <p className="mt-1 font-semibold text-gray-900 dark:text-white">
+                  {cycleName || `${tCalendar('cycle')} ${block.cycleNumber}`}
+                </p>
               </div>
               <div>
                 <span className="font-medium text-gray-500 dark:text-gray-400">

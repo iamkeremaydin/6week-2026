@@ -42,10 +42,10 @@
     "workAbbrev": "6W",
     "restAbbrev": "1R",
     "restWeek": "Rest Week",
-    "addLabel": "Add label",
-    "labelPlaceholder": "Label...",
     "start": "Start:",
-    "end": "End:"
+    "end": "End:",
+    "clickToEditCycleName": "Click to edit cycle name",
+    "cyclePlaceholder": "Enter cycle name (e.g., Q1 Sprint, Product Launch)"
   },
   "agenda": {
     "title": "Agenda View",

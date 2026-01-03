@@ -42,10 +42,10 @@
     "workAbbrev": "6H",
     "restAbbrev": "1D",
     "restWeek": "Dinlenme Haftası",
-    "addLabel": "Etiket ekle",
-    "labelPlaceholder": "Etiket...",
     "start": "Başlangıç:",
-    "end": "Bitiş:"
+    "end": "Bitiş:",
+    "clickToEditCycleName": "Döngü adını düzenlemek için tıklayın",
+    "cyclePlaceholder": "Döngü adı girin (örn: 1. Çeyrek Sprint, Ürün Lansmanı)"
   },
   "agenda": {
     "title": "Ajanda Görünümü",
