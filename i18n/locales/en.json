@@ -45,7 +45,11 @@
     "start": "Start:",
     "end": "End:",
     "clickToEditCycleName": "Click to edit cycle name",
-    "cyclePlaceholder": "Enter cycle name (e.g., Q1 Sprint, Product Launch)"
+    "cyclePlaceholder": "Enter cycle name (e.g., Q1 Sprint, Product Launch)",
+    "cycleNamingHint": "Tap cycle name to customize",
+    "cycleNamingHintMobile": "💡 Tap any cycle name to give it a custom name",
+    "gotIt": "Got it",
+    "firstCycleHint": "Start by naming your first cycle above"
   },
   "agenda": {
     "title": "Agenda View",

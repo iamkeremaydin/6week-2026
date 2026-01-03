@@ -5,6 +5,7 @@ import { useState, lazy, Suspense } from "react";
 import { useTranslations } from 'next-intl';
 import { useCycleLogic } from "@/hooks/useCycleLogic";
 import { Legend } from "./Legend";
+import { SystemControls } from "../SystemControls";
 import type { ViewMode } from "@/lib/calendar/types";
 
 const YearTimeline = lazy(() => import("./YearTimeline").then(mod => ({ default: mod.YearTimeline })));
@@ -17,6 +18,8 @@ export interface CalendarViewProps {
   workWeeks?: number;
   restWeeks?: number;
   weekStartsOn?: 0 | 1;
+  isDarkMode?: boolean;
+  onToggleDarkMode?: () => void;
 }
 
 /**
@@ -29,6 +32,8 @@ export function CalendarView({
   workWeeks = 6,
   restWeeks = 1,
   weekStartsOn = 1,
+  isDarkMode = true,
+  onToggleDarkMode = () => {},
 }: CalendarViewProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("timeline");
   const tApp = useTranslations('app');
@@ -58,18 +63,21 @@ export function CalendarView({
   ] as const;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 p-2 sm:p-4 md:p-6 overflow-x-hidden pb-28 sm:pb-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 p-4 sm:p-2 md:p-6 overflow-x-hidden">
       <div className="max-w-7xl mx-auto space-y-3 sm:space-y-4">
+        {/* System Controls - Language & Dark Mode */}
+        <SystemControls isDarkMode={isDarkMode} onToggleDarkMode={onToggleDarkMode} />
+
         {/* Header */}
         <m.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center px-2 pt-2 sm:pt-0"
+          className="text-center px-4 sm:px-2 pt-2 sm:pt-0"
         >
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2 bg-clip-text text-transparent bg-gradient-to-r from-work-600 to-rest-600">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-2 bg-clip-text text-transparent bg-gradient-to-r from-work-600 to-rest-600">
             {tApp('title')}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm md:text-base">
+          <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-sm md:text-base leading-relaxed sm:leading-normal">
             {year} — {tApp('subtitle')}
           </p>
         </m.div>
@@ -80,13 +88,13 @@ export function CalendarView({
           animate={{ opacity: 1, scale: 1 }}
           className="flex justify-center"
         >
-          <div className="inline-flex bg-white dark:bg-gray-900 rounded-lg p-1 shadow-lg border border-gray-200 dark:border-gray-800">
+          <div className="inline-flex bg-white dark:bg-gray-900 rounded-lg p-1 shadow-lg border border-gray-200 dark:border-gray-800 gap-2 sm:gap-1">
             {VIEW_MODES.map((mode) => (
               <m.button
                 key={mode.value}
                 onClick={() => setViewMode(mode.value)}
                 className={`
-                  flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium
+                  flex items-center gap-2 sm:gap-2 px-4 py-3 sm:px-3 sm:py-2 rounded-lg text-sm sm:text-sm font-medium
                   transition-colors duration-200
                   ${
                     viewMode === mode.value
@@ -98,7 +106,7 @@ export function CalendarView({
                 whileTap={{ scale: 0.98 }}
               >
                 <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5"
+                  className="w-5 h-5 sm:w-4 sm:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -110,6 +118,7 @@ export function CalendarView({
                     d={mode.icon}
                   />
                 </svg>
+                <span className="inline sm:hidden">{mode.label}</span>
                 <span className="hidden sm:inline">{mode.label}</span>
               </m.button>
             ))}
@@ -119,7 +128,7 @@ export function CalendarView({
         {/* Main content area */}
         <div className="grid lg:grid-cols-[1fr_280px] xl:grid-cols-[1fr_320px] gap-3 sm:gap-4">
           {/* Calendar views */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl p-2 sm:p-3 md:p-4 shadow-lg border border-gray-200 dark:border-gray-800 min-h-[500px] lg:min-h-[700px] overflow-x-hidden">
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-4 sm:p-3 md:p-4 shadow-lg border border-gray-200 dark:border-gray-800 min-h-[500px] lg:min-h-[700px] overflow-x-hidden">
             <Suspense fallback={
               <div className="flex items-center justify-center h-[500px]">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-work-500"></div>

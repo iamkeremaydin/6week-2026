@@ -45,7 +45,11 @@
     "start": "Başlangıç:",
     "end": "Bitiş:",
     "clickToEditCycleName": "Döngü adını düzenlemek için tıklayın",
-    "cyclePlaceholder": "Döngü adı girin (örn: 1. Çeyrek Sprint, Ürün Lansmanı)"
+    "cyclePlaceholder": "Döngü adı girin (örn: 1. Çeyrek Sprint, Ürün Lansmanı)",
+    "cycleNamingHint": "Döngü adını özelleştirmek için dokunun",
+    "cycleNamingHintMobile": "💡 Herhangi bir döngü adına dokunarak özel bir isim verebilirsiniz",
+    "gotIt": "Anladım",
+    "firstCycleHint": "Yukarıdaki ilk döngünüzü adlandırarak başlayın"
   },
   "agenda": {
     "title": "Ajanda Görünümü",

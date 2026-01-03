@@ -54,7 +54,7 @@ function AgendaItem({
     >
       <m.div
         className={`
-          p-4 sm:p-6 cursor-pointer
+          p-5 sm:p-4 md:p-6 cursor-pointer
           ${
             block.type === "work"
               ? "bg-work-50 dark:bg-work-950 hover:bg-work-100 dark:hover:bg-work-900"
@@ -97,7 +97,7 @@ function AgendaItem({
               )}
             </div>
 
-            <h3 className="text-base sm:text-lg font-semibold mb-1 text-gray-900 dark:text-white">
+            <h3 className="text-lg sm:text-xl font-semibold mb-1 text-gray-900 dark:text-white">
               {(() => {
                 const cycleName = getCycleName(block.cycleNumber);
                 const displayCycleName = cycleName || `${tCalendar('cycle')} ${block.cycleNumber}`;

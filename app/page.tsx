@@ -1,11 +1,9 @@
 "use client";
 
 import { CalendarView } from "@/components/calendar/CalendarView";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { m } from "motion/react";
 import { useState, useEffect } from "react";
 import { useTranslations } from 'next-intl';
-import { SunIcon, MoonIcon } from "@/components/icons";
 
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -22,23 +20,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen pb-24 sm:pb-0">
-      {/* Language switcher */}
-      <LanguageSwitcher />
-      
-      {/* Dark mode toggle */}
-      <m.button
-        onClick={toggleDarkMode}
-        className="fixed bottom-4 right-4 sm:top-4 sm:bottom-auto sm:right-4 z-50 p-2 sm:p-3 rounded-full bg-white dark:bg-gray-900 shadow-lg border border-gray-200 dark:border-gray-800"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        {isDarkMode ? <SunIcon /> : <MoonIcon />}
-      </m.button>
-
+    <div className="min-h-screen">
       {/* Main calendar */}
       <CalendarView
         year={2026}
@@ -46,11 +28,13 @@ export default function Home() {
         workWeeks={6}
         restWeeks={1}
         weekStartsOn={1}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={toggleDarkMode}
       />
 
       {/* Info section */}
       <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12 md:px-8">
+        <div className="max-w-7xl mx-auto px-4 pt-12 sm:pt-8 md:px-8 pb-8 sm:pb-12">
           <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -58,21 +42,21 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 px-2">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-4 px-2">
               {t('methodologyTitle')}
             </h2>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
+            <p className="text-base sm:text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
               {t('methodologyDesc')}
             </p>
           </m.div>
 
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-4 md:gap-6">
             <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="bg-work-50 dark:bg-work-950 p-4 sm:p-6 rounded-xl"
+              className="bg-work-50 dark:bg-work-950 p-6 sm:p-4 md:p-6 rounded-xl"
             >
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-work-500 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
                 <svg
@@ -100,7 +84,7 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-rest-50 dark:bg-rest-950 p-4 sm:p-6 rounded-xl"
+              className="bg-rest-50 dark:bg-rest-950 p-6 sm:p-4 md:p-6 rounded-xl"
             >
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-rest-500 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
                 <svg
@@ -128,7 +112,7 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-gray-50 dark:bg-gray-800 p-4 sm:p-6 rounded-xl"
+              className="bg-gray-50 dark:bg-gray-800 p-6 sm:p-4 md:p-6 rounded-xl"
             >
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center mb-3 sm:mb-4">
                 <svg
@@ -161,7 +145,7 @@ export default function Home() {
             className="mt-8 sm:mt-12 text-center"
           >
             <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{t('featuresTitle')}</h3>
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-4 md:gap-6">
               <div className="p-3 sm:p-4">
                 <div className="text-2xl sm:text-3xl mb-2">🎨</div>
                 <h4 className="text-sm sm:text-base font-semibold mb-1">{t('premiumAnimations')}</h4>

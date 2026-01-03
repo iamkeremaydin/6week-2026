@@ -2,7 +2,7 @@
 
 import { m } from "motion/react";
 import { isSameWeek, getMonth, getYear } from "date-fns";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from 'next-intl';
 import { formatFullDate, formatDate, type Locale } from "@/lib/i18n/dateFormats";
 import { useCycleNaming } from "@/lib/context/CycleNamingContext";
@@ -26,12 +26,25 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
   const [editingCycle, setEditingCycle] = useState<number | null>(null);
   const [editValue, setEditValue] = useState<string>("");
   const [hoveredMonth, setHoveredMonth] = useState<number | null>(null);
+  const [showNamingHint, setShowNamingHint] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const cycleRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const { getCycleName, setCycleName } = useCycleNaming();
   const t = useTranslations('timeline');
   const tCalendar = useTranslations('calendar');
   const tMonths = useTranslations('months');
   const locale = useLocale() as Locale;
+
+  // Check if mobile and if user has seen hint
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsMobile(window.innerWidth < 640);
+      const hasSeenHint = localStorage.getItem('hasSeenCycleNamingHint');
+      if (!hasSeenHint && window.innerWidth < 640) {
+        setShowNamingHint(true);
+      }
+    }
+  }, []);
 
   // Month names from translations (no emojis)
   const MONTHS = useMemo(() => [
@@ -142,6 +155,13 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
     }
   };
 
+  const handleDismissHint = () => {
+    setShowNamingHint(false);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('hasSeenCycleNamingHint', 'true');
+    }
+  };
+
   return (
     <div className="w-full h-full overflow-y-auto overflow-x-hidden">
       <div className="flex gap-4 sm:gap-6 md:gap-8 min-h-[800px] relative px-2 sm:px-4">
@@ -184,7 +204,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
           <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-700" />
 
           {/* Cycles with increased spacing */}
-          <div className="ml-6 sm:ml-8 space-y-6 sm:space-y-8">
+          <div className="ml-6 sm:ml-8 space-y-8 sm:space-y-6">
             {cycles.map((cycle, cycleIndex) => {
               const isCurrentCycle = cycle.weeks.some(week => 
                 currentBlock && isSameWeek(week.start, currentBlock.start)
@@ -233,7 +253,8 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                         : isHovered
                         ? "border-work-400 dark:border-work-500 shadow-lg bg-work-50/50 dark:bg-work-950/20"
                         : "border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md"}
-                      p-4 sm:p-5 transition-all duration-200
+                      ${cycleIndex === 0 && showNamingHint ? "ring-2 ring-work-400 dark:ring-work-500 ring-offset-2" : ""}
+                      p-5 sm:p-4 transition-all duration-200
                     `}
                     style={{ transformOrigin: "top" }}
                   >
@@ -250,7 +271,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                               onKeyDown={(e) => handleKeyDown(e, cycle.cycleNumber)}
                               placeholder={t('cyclePlaceholder')}
                               autoFocus
-                              className="w-full text-sm sm:text-base font-bold text-gray-900 dark:text-white bg-transparent border-b-2 border-work-500 dark:border-work-400 focus:outline-none pb-1"
+                              className="w-full text-base sm:text-lg font-bold text-gray-900 dark:text-white bg-transparent border-b-2 border-work-500 dark:border-work-400 focus:outline-none pb-1"
                             />
                           ) : (
                             <button
@@ -259,9 +280,27 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                               title={t('clickToEditCycleName')}
                             >
                               <div className="flex items-center gap-2">
-                                <span className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
+                                <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                                   {cycleName || `${tCalendar('cycle')} ${cycle.cycleNumber}`}
                                 </span>
+                                {/* Subtle edit indicator - only shown for default (unedited) cycle names */}
+                                {!cycleName && (
+                                  <svg
+                                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 dark:text-gray-500 opacity-60"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                    />
+                                  </svg>
+                                )}
+                                {/* Hover edit icon - shown on hover for all cycles */}
                                 <svg
                                   className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
                                   fill="none"
@@ -290,7 +329,7 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                       </div>
 
                       {/* Date Range */}
-                      <div className="space-y-1 text-[11px] text-gray-600 dark:text-gray-400">
+                      <div className="space-y-1 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                         <div className="flex items-center justify-between">
                           <span>{t('start')}</span>
                           <span className="font-medium text-gray-900 dark:text-white">
@@ -340,6 +379,29 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                 </m.div>
               );
             })}
+
+            {/* Cycle Naming Onboarding Hint - Mobile Only */}
+            {showNamingHint && isMobile && cycles.length > 0 && (
+              <m.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="mt-4 bg-work-50 dark:bg-work-950/30 border border-work-200 dark:border-work-800 rounded-lg p-4 flex items-start gap-3"
+              >
+                <div className="flex-shrink-0 text-2xl">💡</div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                    {t('cycleNamingHintMobile')}
+                  </p>
+                  <button
+                    onClick={handleDismissHint}
+                    className="text-xs text-work-600 dark:text-work-400 font-medium hover:underline"
+                  >
+                    {t('gotIt')}
+                  </button>
+                </div>
+              </m.div>
+            )}
           </div>
         </div>
       </div>
