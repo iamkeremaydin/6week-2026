@@ -210,12 +210,17 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
                 className={`
                   relative aspect-square rounded-lg p-1.5 sm:p-2 cursor-pointer flex flex-col items-center justify-start
                   transition-all duration-200
-                  ${!isCurrentMonth ? "opacity-30" : ""}
                   ${
                     block?.type === "work"
-                      ? "bg-work-100 dark:bg-work-900 hover:bg-work-200 dark:hover:bg-work-800"
+                      ? !isCurrentMonth
+                        ? "bg-work-50 dark:bg-work-950 hover:bg-work-100 dark:hover:bg-work-900"
+                        : "bg-work-100 dark:bg-work-900 hover:bg-work-200 dark:hover:bg-work-800"
                       : block?.type === "rest"
-                      ? "bg-rest-100 dark:bg-rest-900 hover:bg-rest-200 dark:hover:bg-rest-800"
+                      ? !isCurrentMonth
+                        ? "bg-rest-50 dark:bg-rest-950 hover:bg-rest-100 dark:hover:bg-rest-900"
+                        : "bg-rest-100 dark:bg-rest-900 hover:bg-rest-200 dark:hover:bg-rest-800"
+                      : !isCurrentMonth
+                      ? "bg-gray-50/50 dark:bg-gray-900/50 hover:bg-gray-100/70 dark:hover:bg-gray-800/70"
                       : "bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800"
                   }
                   ${isTodayDate ? "ring-2 ring-gray-900 dark:ring-white" : ""}
@@ -225,7 +230,13 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
                   <span
                     className={`
                       text-xs sm:text-sm font-semibold
-                      ${isTodayDate ? "text-gray-900 dark:text-white font-bold" : "text-gray-700 dark:text-gray-200"}
+                      ${
+                        isTodayDate 
+                          ? "text-gray-900 dark:text-white font-bold" 
+                          : !isCurrentMonth
+                          ? "text-gray-500 dark:text-gray-500"
+                          : "text-gray-700 dark:text-gray-200"
+                      }
                     `}
                   >
                     {format(day, "d")}
@@ -238,10 +249,13 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
                         text-[9px] sm:text-[10px] font-semibold truncate w-full text-center px-1 py-0.5 rounded
                         ${
                           block.type === "work"
-                            ? "bg-work-200/80 dark:bg-work-800/60 text-work-700 dark:text-work-300"
+                            ? !isCurrentMonth
+                              ? "bg-work-100/60 dark:bg-work-900/40 text-work-600/80 dark:text-work-400/70"
+                              : "bg-work-200/80 dark:bg-work-800/60 text-work-700 dark:text-work-300"
+                            : !isCurrentMonth
+                            ? "bg-rest-100/60 dark:bg-rest-900/40 text-rest-600/80 dark:text-rest-400/70"
                             : "bg-rest-200/80 dark:bg-rest-800/60 text-rest-700 dark:text-rest-300"
                         }
-                        ${!isCurrentMonth ? "opacity-70" : ""}
                         ${isTodayDate ? "ring-1 ring-gray-900/20 dark:ring-white/20" : ""}
                       `}
                       title={displayCycleName}
@@ -259,10 +273,13 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
                         w-1.5 h-1.5 rounded-full
                         ${
                           block.type === "work"
-                            ? "bg-work-500 dark:bg-work-400"
+                            ? !isCurrentMonth
+                              ? "bg-work-400/60 dark:bg-work-500/50"
+                              : "bg-work-500 dark:bg-work-400"
+                            : !isCurrentMonth
+                            ? "bg-rest-400/60 dark:bg-rest-500/50"
                             : "bg-rest-500 dark:bg-rest-400"
                         }
-                        ${!isCurrentMonth ? "opacity-70" : ""}
                       `}
                     />
                   </div>
