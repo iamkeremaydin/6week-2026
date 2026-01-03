@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased">
+    <html lang="en" suppressHydrationWarning>
+      <body className="antialiased" suppressHydrationWarning>
         <LanguageProvider>
           <CycleNamingProvider>
             {/* LazyMotion reduces bundle size by ~50% while maintaining full animation capabilities */}
