@@ -35,12 +35,12 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
   const tMonths = useTranslations('months');
   const locale = useLocale() as Locale;
 
-  // Check if mobile and if user has seen hint
+  // Check if user has seen hint (all screen sizes)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsMobile(window.innerWidth < 640);
       const hasSeenHint = localStorage.getItem('hasSeenCycleNamingHint');
-      if (!hasSeenHint && window.innerWidth < 640) {
+      if (!hasSeenHint) {
         setShowNamingHint(true);
       }
     }
@@ -205,8 +205,8 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
 
           {/* Cycles with increased spacing */}
           <div className="ml-4 sm:ml-8 space-y-8 sm:space-y-6">
-            {/* Cycle Naming Onboarding Hint - Mobile Only - Positioned at top */}
-            {showNamingHint && isMobile && cycles.length > 0 && (
+            {/* Cycle Naming Onboarding Hint - Positioned at top */}
+            {showNamingHint && cycles.length > 0 && (
               <m.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -302,14 +302,14 @@ export function YearTimeline({ blocks, currentBlock }: YearTimelineProps) {
                               className="group w-full text-left min-w-0"
                               title={t('clickToEditCycleName')}
                             >
-                              <div className="flex items-center gap-2 min-w-0">
+                              <div className="flex items-center gap-1 min-w-0">
                                 <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate flex-1 min-w-0">
                                   {cycleName || `${tCalendar('cycle')} ${cycle.cycleNumber}`}
                                 </span>
                                 {/* Subtle edit indicator - only shown for default (unedited) cycle names */}
                                 {!cycleName && (
                                   <svg
-                                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 dark:text-gray-500 opacity-60"
+                                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 dark:text-gray-500 opacity-60 flex-shrink-0"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
