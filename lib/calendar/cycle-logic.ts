@@ -3,7 +3,7 @@
  * Handles partial cycles at year boundaries and maintains cycle numbering across the year.
  */
 
-import { addWeeks, startOfWeek, differenceInWeeks, isWithinInterval } from "date-fns";
+import { addWeeks, startOfWeek, differenceInWeeks, isWithinInterval, startOfDay, isAfter, isBefore, isEqual } from "date-fns";
 import type { Block, CycleConfig, BlockType } from "./types";
 
 /**
@@ -89,15 +89,27 @@ export function buildSixPlusOneBlocks(
 
 /**
  * Locates which work/rest block contains a given date.
+ * Uses start-of-day normalization to avoid time component issues.
  * 
  * @param date - Target date to locate
  * @param blocks - Blocks to search through
  * @returns Matching block or undefined if date falls outside all blocks
  */
 export function getBlockForDate(date: Date, blocks: Block[]): Block | undefined {
-  return blocks.find((block) =>
-    isWithinInterval(date, { start: block.start, end: addWeeks(block.end, -0.001) })
-  );
+  // Normalize date to start of day for consistent comparison
+  const normalizedDate = startOfDay(date);
+  
+  return blocks.find((block) => {
+    // Normalize block boundaries to start of day
+    const blockStart = startOfDay(block.start);
+    const blockEnd = startOfDay(block.end); // block.end is exclusive, so this is the first day NOT in the block
+    
+    // Date is in block if: date >= blockStart AND date < blockEnd
+    return (
+      (isAfter(normalizedDate, blockStart) || isEqual(normalizedDate, blockStart)) &&
+      isBefore(normalizedDate, blockEnd)
+    );
+  });
 }
 
 /**

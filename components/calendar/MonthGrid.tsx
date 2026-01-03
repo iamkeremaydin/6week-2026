@@ -16,6 +16,7 @@ import {
 import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from 'next-intl';
 import { formatMonthYear, type Locale } from "@/lib/i18n/dateFormats";
+import { useCycleNaming } from "@/lib/context/CycleNamingContext";
 import type { Block } from "@/lib/calendar/types";
 
 interface MonthGridProps {
@@ -31,7 +32,9 @@ interface MonthGridProps {
 export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date(year, 0, 1));
   const tWeekdays = useTranslations('weekdays');
+  const tCalendar = useTranslations('calendar');
   const locale = useLocale() as Locale;
+  const { getCycleName } = useCycleNaming();
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -50,6 +53,26 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
     tWeekdays('sat'),
     tWeekdays('sun'),
   ], [tWeekdays]);
+
+  // Calculate unique cycle numbers present in the current month
+  const cyclesInMonth = useMemo(() => {
+    const cycleSet = new Set<number>();
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(currentMonth);
+    
+    // Iterate through all days in the current month
+    const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+    
+    monthDays.forEach((day) => {
+      const block = getBlockForDate(day);
+      if (block?.cycleNumber) {
+        cycleSet.add(block.cycleNumber);
+      }
+    });
+    
+    // Return sorted array of unique cycle numbers
+    return Array.from(cycleSet).sort((a, b) => a - b);
+  }, [currentMonth, getBlockForDate]);
 
   // Navigation is locked to the target year to prevent viewing cycles outside the configured period
   const isFirstMonth = currentMonth.getMonth() === 0 && currentMonth.getFullYear() === year;
@@ -167,9 +190,12 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
           className="grid grid-cols-7 gap-1 sm:gap-2"
         >
           {days.map((day, index) => {
+            // Always get block for the day, regardless of which month it's in
             const block = getBlockForDate(day);
             const isCurrentMonth = isSameMonth(day, currentMonth);
             const isTodayDate = isToday(day);
+            const cycleName = block?.cycleNumber ? getCycleName(block.cycleNumber) : undefined;
+            const displayCycleName = cycleName || (block?.cycleNumber ? `${tCalendar('cycle')} ${block.cycleNumber}` : undefined);
 
             return (
               <m.div
@@ -182,7 +208,7 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
                 }}
                 whileHover={{ scale: 1.05, y: -2 }}
                 className={`
-                  relative aspect-square rounded-lg p-1 sm:p-2 cursor-pointer flex items-start justify-center
+                  relative aspect-square rounded-lg p-1.5 sm:p-2 cursor-pointer flex flex-col items-center justify-start
                   transition-all duration-200
                   ${!isCurrentMonth ? "opacity-30" : ""}
                   ${
@@ -195,26 +221,48 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
                   ${isTodayDate ? "ring-2 ring-gray-900 dark:ring-white" : ""}
                 `}
               >
-                <span
-                  className={`
-                    text-xs sm:text-sm font-medium mt-1
-                    ${isTodayDate ? "text-gray-900 dark:text-white font-bold" : ""}
-                  `}
-                >
-                  {format(day, "d")}
-                </span>
+                <div className="flex flex-col items-center w-full gap-0.5 sm:gap-1">
+                  <span
+                    className={`
+                      text-xs sm:text-sm font-semibold
+                      ${isTodayDate ? "text-gray-900 dark:text-white font-bold" : "text-gray-700 dark:text-gray-200"}
+                    `}
+                  >
+                    {format(day, "d")}
+                  </span>
+                  
+                  {/* Cycle name label - show for all days with blocks, regardless of month view */}
+                  {block && displayCycleName && (
+                    <span
+                      className={`
+                        text-[9px] sm:text-[10px] font-semibold truncate w-full text-center px-1 py-0.5 rounded
+                        ${
+                          block.type === "work"
+                            ? "bg-work-200/80 dark:bg-work-800/60 text-work-700 dark:text-work-300"
+                            : "bg-rest-200/80 dark:bg-rest-800/60 text-rest-700 dark:text-rest-300"
+                        }
+                        ${!isCurrentMonth ? "opacity-70" : ""}
+                        ${isTodayDate ? "ring-1 ring-gray-900/20 dark:ring-white/20" : ""}
+                      `}
+                      title={displayCycleName}
+                    >
+                      {displayCycleName.length > 10 ? `${displayCycleName.substring(0, 8)}...` : displayCycleName}
+                    </span>
+                  )}
+                </div>
 
-                {/* Block type indicator */}
-                {block && isCurrentMonth && (
+                {/* Block type indicator - only show if no cycle name to avoid clutter, for all days with blocks */}
+                {block && !displayCycleName && (
                   <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
                     <div
                       className={`
-                        w-1 h-1 rounded-full
+                        w-1.5 h-1.5 rounded-full
                         ${
                           block.type === "work"
                             ? "bg-work-500 dark:bg-work-400"
                             : "bg-rest-500 dark:bg-rest-400"
                         }
+                        ${!isCurrentMonth ? "opacity-70" : ""}
                       `}
                     />
                   </div>
@@ -234,6 +282,41 @@ export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
           })}
         </m.div>
       </AnimatePresence>
+
+      {/* Cycle names legend */}
+      {cyclesInMonth.length > 0 && (
+        <m.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700"
+        >
+          <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 sm:mb-4">
+            {tCalendar('cycle')}s in {formatMonthYear(currentMonth, locale)}
+          </h3>
+          <div className="flex flex-wrap gap-2 sm:gap-3">
+            {cyclesInMonth.map((cycleNumber) => {
+              const cycleName = getCycleName(cycleNumber);
+              const displayName = cycleName || `${tCalendar('cycle')} ${cycleNumber}`;
+              
+              return (
+                <m.div
+                  key={cycleNumber}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.2, delay: cycleNumber * 0.05 }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm"
+                >
+                  <div className="w-2 h-2 rounded-full bg-work-500 dark:bg-work-400" />
+                  <span className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
+                    {displayName}
+                  </span>
+                </m.div>
+              );
+            })}
+          </div>
+        </m.div>
+      )}
     </div>
   );
 }
