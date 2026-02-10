@@ -270,16 +270,17 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       ? blocks 
       : blocks.filter(b => !isBlockPast(b));
 
-    // Create a sorted copy without mutating
+    // Sort: past weeks first (chronological), then current, then future
+    // This way past weeks are immediately visible at the top when toggled on
     return [...filtered].sort((a, b) => {
       const aIsCurrent = isBlockCurrent(a);
       const bIsCurrent = isBlockCurrent(b);
       const aIsPast = isBlockPast(a);
       const bIsPast = isBlockPast(b);
       
-      // Determine categories: 0=current, 1=future, 2=past
-      const aCat = aIsCurrent ? 0 : (aIsPast ? 2 : 1);
-      const bCat = bIsCurrent ? 0 : (bIsPast ? 2 : 1);
+      // Determine categories: 0=past, 1=current, 2=future
+      const aCat = aIsPast ? 0 : (aIsCurrent ? 1 : 2);
+      const bCat = bIsPast ? 0 : (bIsCurrent ? 1 : 2);
       
       return aCat - bCat;
     });
@@ -359,10 +360,11 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
           const isPast = isBlockPast(block);
           const isCurrent = isBlockCurrent(block);
           const nextBlock = displayedBlocks[index + 1];
+          // Show separator after the last past week (before current/future weeks)
           const showPastSeparator = showPastWeeks && 
-            !isPast && 
+            isPast && 
             nextBlock && 
-            isBlockPast(nextBlock);
+            !isBlockPast(nextBlock);
 
           return (
             <div key={`${block.cycleNumber}-${block.weekInCycle}`}>
@@ -381,7 +383,7 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
                 >
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent" />
                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">
-                    ↓ Past Weeks ({displayedBlocks.filter(b => isBlockPast(b)).length})
+                    ↑ Past Weeks Above ({displayedBlocks.filter(b => isBlockPast(b)).length})
                   </span>
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent" />
                 </m.div>
