@@ -1,6 +1,6 @@
 "use client";
 
-import { m, useInView } from "motion/react";
+import { m, useInView, AnimatePresence } from "motion/react";
 import { useRef, useState, useMemo } from "react";
 import { useTranslations, useLocale } from 'next-intl';
 import { formatFullDateWithWeekday, formatDateRange, type Locale } from "@/lib/i18n/dateFormats";
@@ -244,7 +244,7 @@ function AgendaItem({
  */
 export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
   const t = useTranslations('agenda');
-  const [showPastWeeks, setShowPastWeeks] = useState(true);
+  const [showPastWeeks, setShowPastWeeks] = useState(false);
   const [strikethroughPastWeeks, setStrikethroughPastWeeks] = useState(true);
 
   // Categorize blocks into past, current, and future
@@ -275,14 +275,21 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
   const displayedBlocks = useMemo(() => {
     let filtered = categorizedBlocks;
     
+    const pastCount = categorizedBlocks.filter(b => b.isPastWeek).length;
+    const currentCount = categorizedBlocks.filter(b => b.isCurrentWeek).length;
+    const futureCount = categorizedBlocks.filter(b => !b.isPastWeek && !b.isCurrentWeek).length;
+    
+    console.log(`AgendaList: Total blocks: ${categorizedBlocks.length}, Past: ${pastCount}, Current: ${currentCount}, Future: ${futureCount}, showPastWeeks: ${showPastWeeks}`);
+    
     // Filter out past weeks if showPastWeeks is false
     if (!showPastWeeks) {
       filtered = filtered.filter(b => !b.isPastWeek);
+      console.log(`AgendaList: Filtered to ${filtered.length} blocks (hiding past weeks)`);
     }
 
     // Sort: future weeks first, then current week, then past weeks
     // Within each category, maintain chronological order
-    return [...filtered].sort((a, b) => {
+    const sorted = [...filtered].sort((a, b) => {
       // Determine categories for both blocks
       const aCat = a.isCurrentWeek ? 1 : (a.isPastWeek ? 2 : 0); // 0=future, 1=current, 2=past
       const bCat = b.isCurrentWeek ? 1 : (b.isPastWeek ? 2 : 0);
@@ -295,6 +302,10 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       // Within same category, maintain original order (already chronological)
       return 0;
     });
+    
+    console.log(`AgendaList: Display order - First block: cycle ${sorted[0]?.cycleNumber}, week ${sorted[0]?.weekInCycle}, isPast: ${sorted[0]?.isPastWeek}, isCurrent: ${sorted[0]?.isCurrentWeek}`);
+    
+    return sorted;
   }, [categorizedBlocks, showPastWeeks]);
   
   return (
@@ -318,12 +329,16 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
         className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-3"
       >
         <div className="flex items-center justify-between">
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label htmlFor="showPastWeeks" className="flex items-center gap-2 cursor-pointer select-none">
             <input
+              id="showPastWeeks"
               type="checkbox"
               checked={showPastWeeks}
-              onChange={(e) => setShowPastWeeks(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-white"
+              onChange={(e) => {
+                console.log('Show Past Weeks checkbox clicked:', e.target.checked);
+                setShowPastWeeks(e.target.checked);
+              }}
+              className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-offset-0 focus:ring-gray-900 dark:focus:ring-white cursor-pointer accent-gray-900 dark:accent-white"
             />
             <span className="text-sm font-medium text-gray-900 dark:text-white">
               {t('showPastWeeks')}
@@ -331,26 +346,33 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
           </label>
         </div>
 
-        {showPastWeeks && (
-          <m.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="flex items-center justify-between pl-6"
-          >
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={strikethroughPastWeeks}
-                onChange={(e) => setStrikethroughPastWeeks(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-white"
-              />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('strikethroughPastWeeks')}
-              </span>
-            </label>
-          </m.div>
-        )}
+        <AnimatePresence>
+          {showPastWeeks && (
+            <m.div
+              key="strikethrough-option"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="flex items-center justify-between pl-6">
+                <label htmlFor="strikethroughPastWeeks" className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    id="strikethroughPastWeeks"
+                    type="checkbox"
+                    checked={strikethroughPastWeeks}
+                    onChange={(e) => setStrikethroughPastWeeks(e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-offset-0 focus:ring-gray-900 dark:focus:ring-white cursor-pointer accent-gray-900 dark:accent-white"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('strikethroughPastWeeks')}
+                  </span>
+                </label>
+              </div>
+            </m.div>
+          )}
+        </AnimatePresence>
       </m.div>
 
       <div className="space-y-2 sm:space-y-3">
