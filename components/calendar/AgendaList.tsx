@@ -1,7 +1,7 @@
 "use client";
 
 import { m, useInView, AnimatePresence } from "motion/react";
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useCallback } from "react";
 import { useTranslations, useLocale } from 'next-intl';
 import { formatFullDateWithWeekday, formatDateRange, type Locale } from "@/lib/i18n/dateFormats";
 import { useCycleNaming } from "@/lib/context/CycleNamingContext";
@@ -247,66 +247,59 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
   const [showPastWeeks, setShowPastWeeks] = useState(false);
   const [strikethroughPastWeeks, setStrikethroughPastWeeks] = useState(true);
 
-  // Categorize blocks into past, current, and future
-  const categorizedBlocks = useMemo(() => {
+  // Filter and sort blocks: current week first, then future weeks, then past weeks
+  const displayedBlocks = useMemo(() => {
     const today = new Date();
     const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-
-    return blocks.map(block => {
-      const isCurrentWeek = !!(
+    
+    const isBlockCurrent = (block: Block) => {
+      return !!(
         currentBlock &&
         block.cycleNumber === currentBlock.cycleNumber &&
         block.weekInCycle === currentBlock.weekInCycle
       );
-      
-      // Normalize block.end to start of day for comparison
+    };
+
+    const isBlockPast = (block: Block) => {
       const blockEndStart = new Date(block.end.getFullYear(), block.end.getMonth(), block.end.getDate());
-      const isPastWeek = blockEndStart <= todayStart && !isCurrentWeek;
-      
-      return {
-        ...block,
-        isCurrentWeek,
-        isPastWeek,
-      };
-    });
-  }, [blocks, currentBlock]);
+      return blockEndStart <= todayStart && !isBlockCurrent(block);
+    };
 
-  // Filter and sort blocks: future weeks, then current week, then past weeks
-  const displayedBlocks = useMemo(() => {
-    let filtered = categorizedBlocks;
-    
-    const pastCount = categorizedBlocks.filter(b => b.isPastWeek).length;
-    const currentCount = categorizedBlocks.filter(b => b.isCurrentWeek).length;
-    const futureCount = categorizedBlocks.filter(b => !b.isPastWeek && !b.isCurrentWeek).length;
-    
-    console.log(`AgendaList: Total blocks: ${categorizedBlocks.length}, Past: ${pastCount}, Current: ${currentCount}, Future: ${futureCount}, showPastWeeks: ${showPastWeeks}`);
-    
-    // Filter out past weeks if showPastWeeks is false
-    if (!showPastWeeks) {
-      filtered = filtered.filter(b => !b.isPastWeek);
-      console.log(`AgendaList: Filtered to ${filtered.length} blocks (hiding past weeks)`);
-    }
+    // Filter based on showPastWeeks
+    const filtered = showPastWeeks 
+      ? blocks 
+      : blocks.filter(b => !isBlockPast(b));
 
-    // Sort: future weeks first, then current week, then past weeks
-    // Within each category, maintain chronological order
-    const sorted = [...filtered].sort((a, b) => {
-      // Determine categories for both blocks
-      const aCat = a.isCurrentWeek ? 1 : (a.isPastWeek ? 2 : 0); // 0=future, 1=current, 2=past
-      const bCat = b.isCurrentWeek ? 1 : (b.isPastWeek ? 2 : 0);
+    // Create a sorted copy without mutating
+    return [...filtered].sort((a, b) => {
+      const aIsCurrent = isBlockCurrent(a);
+      const bIsCurrent = isBlockCurrent(b);
+      const aIsPast = isBlockPast(a);
+      const bIsPast = isBlockPast(b);
       
-      // If different categories, sort by category
-      if (aCat !== bCat) {
-        return aCat - bCat;
-      }
+      // Determine categories: 0=current, 1=future, 2=past
+      const aCat = aIsCurrent ? 0 : (aIsPast ? 2 : 1);
+      const bCat = bIsCurrent ? 0 : (bIsPast ? 2 : 1);
       
-      // Within same category, maintain original order (already chronological)
-      return 0;
+      return aCat - bCat;
     });
-    
-    console.log(`AgendaList: Display order - First block: cycle ${sorted[0]?.cycleNumber}, week ${sorted[0]?.weekInCycle}, isPast: ${sorted[0]?.isPastWeek}, isCurrent: ${sorted[0]?.isCurrentWeek}`);
-    
-    return sorted;
-  }, [categorizedBlocks, showPastWeeks]);
+  }, [blocks, currentBlock, showPastWeeks]);
+  
+  // Helper functions for rendering
+  const isBlockCurrent = useCallback((block: Block) => {
+    return !!(
+      currentBlock &&
+      block.cycleNumber === currentBlock.cycleNumber &&
+      block.weekInCycle === currentBlock.weekInCycle
+    );
+  }, [currentBlock]);
+
+  const isBlockPast = useCallback((block: Block) => {
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const blockEndStart = new Date(block.end.getFullYear(), block.end.getMonth(), block.end.getDate());
+    return blockEndStart <= todayStart && !isBlockCurrent(block);
+  }, [currentBlock, isBlockCurrent]);
   
   return (
     <div className="w-full max-w-4xl mx-auto space-y-3 sm:space-y-4 px-2 sm:px-0">
@@ -322,72 +315,47 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       </m.div>
 
       {/* Filter controls */}
-      <m.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-3"
-      >
-        <div className="flex items-center justify-between">
-          <label htmlFor="showPastWeeks" className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              id="showPastWeeks"
-              type="checkbox"
-              checked={showPastWeeks}
-              onChange={(e) => {
-                console.log('Show Past Weeks checkbox clicked:', e.target.checked);
-                setShowPastWeeks(e.target.checked);
-              }}
-              className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-offset-0 focus:ring-gray-900 dark:focus:ring-white cursor-pointer accent-gray-900 dark:accent-white"
-            />
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
-              {t('showPastWeeks')}
-            </span>
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-3">
+        <div className="flex items-center gap-3">
+          <input
+            id="showPastWeeks"
+            type="checkbox"
+            checked={showPastWeeks}
+            onChange={(e) => setShowPastWeeks(e.target.checked)}
+            className="w-4 h-4 cursor-pointer"
+          />
+          <label htmlFor="showPastWeeks" className="text-sm font-medium text-gray-900 dark:text-white cursor-pointer flex-1">
+            {t('showPastWeeks')}
           </label>
         </div>
 
-        <AnimatePresence>
-          {showPastWeeks && (
-            <m.div
-              key="strikethrough-option"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden"
-            >
-              <div className="flex items-center justify-between pl-6">
-                <label htmlFor="strikethroughPastWeeks" className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    id="strikethroughPastWeeks"
-                    type="checkbox"
-                    checked={strikethroughPastWeeks}
-                    onChange={(e) => setStrikethroughPastWeeks(e.target.checked)}
-                    className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-offset-0 focus:ring-gray-900 dark:focus:ring-white cursor-pointer accent-gray-900 dark:accent-white"
-                  />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {t('strikethroughPastWeeks')}
-                  </span>
-                </label>
-              </div>
-            </m.div>
-          )}
-        </AnimatePresence>
-      </m.div>
+        {showPastWeeks && (
+          <div className="flex items-center gap-3 pl-6 pt-2">
+            <input
+              id="strikethroughPastWeeks"
+              type="checkbox"
+              checked={strikethroughPastWeeks}
+              onChange={(e) => setStrikethroughPastWeeks(e.target.checked)}
+              className="w-4 h-4 cursor-pointer"
+            />
+            <label htmlFor="strikethroughPastWeeks" className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer flex-1">
+              {t('strikethroughPastWeeks')}
+            </label>
+          </div>
+        )}
+      </div>
 
       <div className="space-y-2 sm:space-y-3">
-        {displayedBlocks.map((block, index) => {
-          return (
-            <AgendaItem
-              key={`${block.cycleNumber}-${block.weekInCycle}`}
-              block={block}
-              index={index}
-              isCurrentWeek={block.isCurrentWeek}
-              isPastWeek={block.isPastWeek}
-              strikethroughEnabled={strikethroughPastWeeks}
-            />
-          );
-        })}
+        {displayedBlocks.map((block, index) => (
+          <AgendaItem
+            key={`${block.cycleNumber}-${block.weekInCycle}`}
+            block={block}
+            index={index}
+            isCurrentWeek={isBlockCurrent(block)}
+            isPastWeek={isBlockPast(block)}
+            strikethroughEnabled={strikethroughPastWeeks}
+          />
+        ))}
       </div>
 
       {/* End of list indicator */}
