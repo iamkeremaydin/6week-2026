@@ -258,7 +258,10 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
         block.cycleNumber === currentBlock.cycleNumber &&
         block.weekInCycle === currentBlock.weekInCycle
       );
-      const isPastWeek = block.end < todayStart && !isCurrentWeek;
+      
+      // Normalize block.end to start of day for comparison
+      const blockEndStart = new Date(block.end.getFullYear(), block.end.getMonth(), block.end.getDate());
+      const isPastWeek = blockEndStart <= todayStart && !isCurrentWeek;
       
       return {
         ...block,
@@ -268,7 +271,7 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
     });
   }, [blocks, currentBlock]);
 
-  // Filter and sort blocks: current week first, then future, then past
+  // Filter and sort blocks: future weeks, then current week, then past weeks
   const displayedBlocks = useMemo(() => {
     let filtered = categorizedBlocks;
     
@@ -277,13 +280,20 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       filtered = filtered.filter(b => !b.isPastWeek);
     }
 
-    // Sort: current week first, then future weeks, then past weeks
-    return filtered.sort((a, b) => {
-      if (a.isCurrentWeek) return -1;
-      if (b.isCurrentWeek) return 1;
-      if (a.isPastWeek && !b.isPastWeek) return 1;
-      if (!a.isPastWeek && b.isPastWeek) return -1;
-      return 0; // maintain original order for blocks in same category
+    // Sort: future weeks first, then current week, then past weeks
+    // Within each category, maintain chronological order
+    return [...filtered].sort((a, b) => {
+      // Determine categories for both blocks
+      const aCat = a.isCurrentWeek ? 1 : (a.isPastWeek ? 2 : 0); // 0=future, 1=current, 2=past
+      const bCat = b.isCurrentWeek ? 1 : (b.isPastWeek ? 2 : 0);
+      
+      // If different categories, sort by category
+      if (aCat !== bCat) {
+        return aCat - bCat;
+      }
+      
+      // Within same category, maintain original order (already chronological)
+      return 0;
     });
   }, [categorizedBlocks, showPastWeeks]);
   

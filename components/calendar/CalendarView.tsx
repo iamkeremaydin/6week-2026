@@ -175,7 +175,7 @@ export function CalendarView({
                     transition={{ duration: 0.3 }}
                   >
                     <AgendaList
-                      blocks={filteredBlocks}
+                      blocks={blocks}
                       currentBlock={currentBlock}
                     />
                   </m.div>
