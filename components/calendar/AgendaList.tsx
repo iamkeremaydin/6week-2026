@@ -265,38 +265,13 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       return blockEndStart <= todayStart && !isBlockCurrent(block);
     };
 
-    // Debug logging
-    const pastBlocks = blocks.filter(b => isBlockPast(b));
-    const currentBlocks = blocks.filter(b => isBlockCurrent(b));
-    const futureBlocks = blocks.filter(b => !isBlockPast(b) && !isBlockCurrent(b));
-    
-    console.log('AgendaList Debug:', {
-      today: todayStart.toISOString(),
-      totalBlocks: blocks.length,
-      pastCount: pastBlocks.length,
-      currentCount: currentBlocks.length,
-      futureCount: futureBlocks.length,
-      showPastWeeks,
-      pastBlocks: pastBlocks.map(b => ({
-        cycle: b.cycleNumber,
-        week: b.weekInCycle,
-        end: b.end.toISOString()
-      }))
-    });
-
     // Filter based on showPastWeeks
     const filtered = showPastWeeks 
       ? blocks 
       : blocks.filter(b => !isBlockPast(b));
 
-    console.log('After filter:', {
-      showPastWeeks,
-      filteredCount: filtered.length,
-      shouldShowAll: showPastWeeks ? 'YES - showing all blocks' : 'NO - hiding past blocks'
-    });
-
     // Create a sorted copy without mutating
-    const sorted = [...filtered].sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       const aIsCurrent = isBlockCurrent(a);
       const bIsCurrent = isBlockCurrent(b);
       const aIsPast = isBlockPast(a);
@@ -308,14 +283,6 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       
       return aCat - bCat;
     });
-
-    console.log('After sort:', {
-      sortedCount: sorted.length,
-      firstBlock: sorted[0] ? `Cycle ${sorted[0].cycleNumber}, Week ${sorted[0].weekInCycle}` : 'none',
-      lastBlock: sorted[sorted.length - 1] ? `Cycle ${sorted[sorted.length - 1].cycleNumber}, Week ${sorted[sorted.length - 1].weekInCycle}` : 'none'
-    });
-
-    return sorted;
   }, [blocks, currentBlock, showPastWeeks]);
   
   // Helper functions for rendering
@@ -354,15 +321,21 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
             id="showPastWeeks"
             type="checkbox"
             checked={showPastWeeks}
-            onChange={(e) => {
-              console.log('Show Past Weeks toggled:', e.target.checked);
-              setShowPastWeeks(e.target.checked);
-            }}
+            onChange={(e) => setShowPastWeeks(e.target.checked)}
             className="w-4 h-4 cursor-pointer"
           />
           <label htmlFor="showPastWeeks" className="text-sm font-medium text-gray-900 dark:text-white cursor-pointer flex-1">
             {t('showPastWeeks')}
           </label>
+          {showPastWeeks && (
+            <m.span
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="px-2 py-1 bg-gray-500 dark:bg-gray-600 text-white rounded text-xs font-medium"
+            >
+              {displayedBlocks.filter(b => isBlockPast(b)).length} past
+            </m.span>
+          )}
         </div>
 
         {showPastWeeks && (
@@ -382,16 +355,40 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       </div>
 
       <div className="space-y-2 sm:space-y-3">
-        {displayedBlocks.map((block, index) => (
-          <AgendaItem
-            key={`${block.cycleNumber}-${block.weekInCycle}`}
-            block={block}
-            index={index}
-            isCurrentWeek={isBlockCurrent(block)}
-            isPastWeek={isBlockPast(block)}
-            strikethroughEnabled={strikethroughPastWeeks}
-          />
-        ))}
+        {displayedBlocks.map((block, index) => {
+          const isPast = isBlockPast(block);
+          const isCurrent = isBlockCurrent(block);
+          const nextBlock = displayedBlocks[index + 1];
+          const showPastSeparator = showPastWeeks && 
+            !isPast && 
+            nextBlock && 
+            isBlockPast(nextBlock);
+
+          return (
+            <div key={`${block.cycleNumber}-${block.weekInCycle}`}>
+              <AgendaItem
+                block={block}
+                index={index}
+                isCurrentWeek={isCurrent}
+                isPastWeek={isPast}
+                strikethroughEnabled={strikethroughPastWeeks}
+              />
+              {showPastSeparator && (
+                <m.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-3 my-6 sm:my-8"
+                >
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent" />
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">
+                    ↓ Past Weeks ({displayedBlocks.filter(b => isBlockPast(b)).length})
+                  </span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent" />
+                </m.div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* End of list indicator */}
