@@ -66,7 +66,9 @@
     "current": "Mevcut",
     "showPastWeeks": "Geçmiş Haftaları Göster",
     "strikethroughPastWeeks": "Geçmiş Haftaları Üstünü Çiz",
-    "pastWeek": "Geçmiş"
+    "pastWeek": "Geçmiş",
+    "past": "geçmiş",
+    "pastWeeksAbove": "↑ Geçmiş Haftalar Yukarıda ({count})"
   },
   "months": {
     "january": "Ocak",

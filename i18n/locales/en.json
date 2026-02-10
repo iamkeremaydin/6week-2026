@@ -66,7 +66,9 @@
     "current": "Current",
     "showPastWeeks": "Show Past Weeks",
     "strikethroughPastWeeks": "Strike Through Past Weeks",
-    "pastWeek": "Past"
+    "pastWeek": "Past",
+    "past": "past",
+    "pastWeeksAbove": "↑ Past Weeks Above ({count})"
   },
   "months": {
     "january": "January",

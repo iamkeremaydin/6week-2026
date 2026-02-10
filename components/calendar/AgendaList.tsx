@@ -334,7 +334,7 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
               animate={{ scale: 1, opacity: 1 }}
               className="px-2 py-1 bg-gray-500 dark:bg-gray-600 text-white rounded text-xs font-medium"
             >
-              {displayedBlocks.filter(b => isBlockPast(b)).length} past
+              {displayedBlocks.filter(b => isBlockPast(b)).length} {t('past')}
             </m.span>
           )}
         </div>
@@ -383,7 +383,7 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
                 >
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent" />
                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">
-                    ↑ Past Weeks Above ({displayedBlocks.filter(b => isBlockPast(b)).length})
+                    {t('pastWeeksAbove', { count: displayedBlocks.filter(b => isBlockPast(b)).length })}
                   </span>
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent" />
                 </m.div>
