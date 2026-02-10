@@ -36,6 +36,8 @@ export type WeekStartDay = 0 | 1;
 export type FilterOptions = {
   blockType?: BlockType | "all";
   cycleNumber?: number;
+  showPastWeeks?: boolean;
+  strikethroughPastWeeks?: boolean;
 };
 
 /** Month positioning data for timeline rendering. */

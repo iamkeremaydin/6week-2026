@@ -63,7 +63,10 @@
     "endOfYear": "End of year",
     "work": "work",
     "rest": "rest",
-    "current": "Current"
+    "current": "Current",
+    "showPastWeeks": "Show Past Weeks",
+    "strikethroughPastWeeks": "Strike Through Past Weeks",
+    "pastWeek": "Past"
   },
   "months": {
     "january": "January",

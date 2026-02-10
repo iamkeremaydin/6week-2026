@@ -1,7 +1,7 @@
 "use client";
 
 import { m, useInView } from "motion/react";
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { useTranslations, useLocale } from 'next-intl';
 import { formatFullDateWithWeekday, formatDateRange, type Locale } from "@/lib/i18n/dateFormats";
 import { useCycleNaming } from "@/lib/context/CycleNamingContext";
@@ -16,10 +16,14 @@ function AgendaItem({
   block,
   index,
   isCurrentWeek,
+  isPastWeek,
+  strikethroughEnabled,
 }: {
   block: Block;
   index: number;
   isCurrentWeek: boolean;
+  isPastWeek: boolean;
+  strikethroughEnabled: boolean;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const ref = useRef(null);
@@ -50,6 +54,7 @@ function AgendaItem({
       className={`
         relative overflow-hidden rounded-xl transition-all duration-300
         ${isCurrentWeek ? "ring-2 ring-gray-900 dark:ring-white" : ""}
+        ${isPastWeek ? "opacity-60" : ""}
       `}
     >
       <m.div
@@ -93,6 +98,18 @@ function AgendaItem({
                   transition={{ delay: 0.3 }}
                 >
                   {t('current')}
+                </m.span>
+              )}
+
+              {/* Past week indicator */}
+              {isPastWeek && (
+                <m.span
+                  className="px-2 py-1 bg-gray-500 dark:bg-gray-600 text-white rounded text-[10px] sm:text-xs font-medium"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {t('pastWeek')}
                 </m.span>
               )}
             </div>
@@ -199,6 +216,24 @@ function AgendaItem({
         animate={{ opacity: isExpanded ? 1 : 0 }}
         transition={{ duration: 0.3 }}
       />
+
+      {/* Strikethrough line for past weeks */}
+      {isPastWeek && strikethroughEnabled && (
+        <m.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
+          className="absolute inset-0 pointer-events-none flex items-center justify-center"
+          style={{ originX: 0 }}
+        >
+          <div
+            className="w-full h-[1px] bg-gray-400 dark:bg-gray-600 opacity-40"
+            style={{
+              transform: 'rotate(-3deg)',
+            }}
+          />
+        </m.div>
+      )}
     </m.div>
   );
 }
@@ -209,6 +244,48 @@ function AgendaItem({
  */
 export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
   const t = useTranslations('agenda');
+  const [showPastWeeks, setShowPastWeeks] = useState(true);
+  const [strikethroughPastWeeks, setStrikethroughPastWeeks] = useState(true);
+
+  // Categorize blocks into past, current, and future
+  const categorizedBlocks = useMemo(() => {
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    return blocks.map(block => {
+      const isCurrentWeek = !!(
+        currentBlock &&
+        block.cycleNumber === currentBlock.cycleNumber &&
+        block.weekInCycle === currentBlock.weekInCycle
+      );
+      const isPastWeek = block.end < todayStart && !isCurrentWeek;
+      
+      return {
+        ...block,
+        isCurrentWeek,
+        isPastWeek,
+      };
+    });
+  }, [blocks, currentBlock]);
+
+  // Filter and sort blocks: current week first, then future, then past
+  const displayedBlocks = useMemo(() => {
+    let filtered = categorizedBlocks;
+    
+    // Filter out past weeks if showPastWeeks is false
+    if (!showPastWeeks) {
+      filtered = filtered.filter(b => !b.isPastWeek);
+    }
+
+    // Sort: current week first, then future weeks, then past weeks
+    return filtered.sort((a, b) => {
+      if (a.isCurrentWeek) return -1;
+      if (b.isCurrentWeek) return 1;
+      if (a.isPastWeek && !b.isPastWeek) return 1;
+      if (!a.isPastWeek && b.isPastWeek) return -1;
+      return 0; // maintain original order for blocks in same category
+    });
+  }, [categorizedBlocks, showPastWeeks]);
   
   return (
     <div className="w-full max-w-4xl mx-auto space-y-3 sm:space-y-4 px-2 sm:px-0">
@@ -223,20 +300,59 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
         </p>
       </m.div>
 
-      <div className="space-y-2 sm:space-y-3">
-        {blocks.map((block, index) => {
-          const isCurrentWeek = !!(
-            currentBlock &&
-            block.cycleNumber === currentBlock.cycleNumber &&
-            block.weekInCycle === currentBlock.weekInCycle
-          );
+      {/* Filter controls */}
+      <m.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-3"
+      >
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showPastWeeks}
+              onChange={(e) => setShowPastWeeks(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-white"
+            />
+            <span className="text-sm font-medium text-gray-900 dark:text-white">
+              {t('showPastWeeks')}
+            </span>
+          </label>
+        </div>
 
+        {showPastWeeks && (
+          <m.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex items-center justify-between pl-6"
+          >
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={strikethroughPastWeeks}
+                onChange={(e) => setStrikethroughPastWeeks(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-white"
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('strikethroughPastWeeks')}
+              </span>
+            </label>
+          </m.div>
+        )}
+      </m.div>
+
+      <div className="space-y-2 sm:space-y-3">
+        {displayedBlocks.map((block, index) => {
           return (
             <AgendaItem
               key={`${block.cycleNumber}-${block.weekInCycle}`}
               block={block}
               index={index}
-              isCurrentWeek={isCurrentWeek}
+              isCurrentWeek={block.isCurrentWeek}
+              isPastWeek={block.isPastWeek}
+              strikethroughEnabled={strikethroughPastWeeks}
             />
           );
         })}
@@ -246,7 +362,7 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: blocks.length * 0.05 }}
+        transition={{ delay: displayedBlocks.length * 0.05 }}
         className="text-center py-8 text-gray-400 dark:text-gray-600"
       >
         <div className="w-16 h-0.5 bg-gray-300 dark:bg-gray-700 mx-auto mb-2" />

@@ -63,7 +63,10 @@
     "endOfYear": "Yıl sonu",
     "work": "çalışma",
     "rest": "dinlenme",
-    "current": "Mevcut"
+    "current": "Mevcut",
+    "showPastWeeks": "Geçmiş Haftaları Göster",
+    "strikethroughPastWeeks": "Geçmiş Haftaları Üstünü Çiz",
+    "pastWeek": "Geçmiş"
   },
   "months": {
     "january": "Ocak",

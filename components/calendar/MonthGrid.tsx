@@ -30,7 +30,7 @@ interface MonthGridProps {
  * Navigation is locked to the configured year to prevent viewing incomplete cycle data.
  */
 export function MonthGrid({ year, getBlockForDate }: MonthGridProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date(year, 0, 1));
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const tWeekdays = useTranslations('weekdays');
   const tCalendar = useTranslations('calendar');
   const locale = useLocale() as Locale;
