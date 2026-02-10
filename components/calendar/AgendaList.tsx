@@ -265,6 +265,25 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       return blockEndStart <= todayStart && !isBlockCurrent(block);
     };
 
+    // Debug logging
+    const pastBlocks = blocks.filter(b => isBlockPast(b));
+    const currentBlocks = blocks.filter(b => isBlockCurrent(b));
+    const futureBlocks = blocks.filter(b => !isBlockPast(b) && !isBlockCurrent(b));
+    
+    console.log('AgendaList Debug:', {
+      today: todayStart.toISOString(),
+      totalBlocks: blocks.length,
+      pastCount: pastBlocks.length,
+      currentCount: currentBlocks.length,
+      futureCount: futureBlocks.length,
+      showPastWeeks,
+      pastBlocks: pastBlocks.map(b => ({
+        cycle: b.cycleNumber,
+        week: b.weekInCycle,
+        end: b.end.toISOString()
+      }))
+    });
+
     // Filter based on showPastWeeks
     const filtered = showPastWeeks 
       ? blocks 
@@ -321,7 +340,10 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
             id="showPastWeeks"
             type="checkbox"
             checked={showPastWeeks}
-            onChange={(e) => setShowPastWeeks(e.target.checked)}
+            onChange={(e) => {
+              console.log('Show Past Weeks toggled:', e.target.checked);
+              setShowPastWeeks(e.target.checked);
+            }}
             className="w-4 h-4 cursor-pointer"
           />
           <label htmlFor="showPastWeeks" className="text-sm font-medium text-gray-900 dark:text-white cursor-pointer flex-1">
