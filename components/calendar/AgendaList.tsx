@@ -289,8 +289,14 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       ? blocks 
       : blocks.filter(b => !isBlockPast(b));
 
+    console.log('After filter:', {
+      showPastWeeks,
+      filteredCount: filtered.length,
+      shouldShowAll: showPastWeeks ? 'YES - showing all blocks' : 'NO - hiding past blocks'
+    });
+
     // Create a sorted copy without mutating
-    return [...filtered].sort((a, b) => {
+    const sorted = [...filtered].sort((a, b) => {
       const aIsCurrent = isBlockCurrent(a);
       const bIsCurrent = isBlockCurrent(b);
       const aIsPast = isBlockPast(a);
@@ -302,6 +308,14 @@ export function AgendaList({ blocks, currentBlock }: AgendaListProps) {
       
       return aCat - bCat;
     });
+
+    console.log('After sort:', {
+      sortedCount: sorted.length,
+      firstBlock: sorted[0] ? `Cycle ${sorted[0].cycleNumber}, Week ${sorted[0].weekInCycle}` : 'none',
+      lastBlock: sorted[sorted.length - 1] ? `Cycle ${sorted[sorted.length - 1].cycleNumber}, Week ${sorted[sorted.length - 1].weekInCycle}` : 'none'
+    });
+
+    return sorted;
   }, [blocks, currentBlock, showPastWeeks]);
   
   // Helper functions for rendering
